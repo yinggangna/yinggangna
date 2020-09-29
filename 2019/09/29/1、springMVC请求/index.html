@@ -7,14 +7,15 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title> - Hexo</title>
+  <title>spingMVC - Hexo</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
 
   
   
-  <meta name="description" content="title: springMVCdate: 2020-..."> 
+  <meta name="description" content="springMVC-请求
+1.请求参数的获取参数的类型..."> 
   
   <meta name="author" content="John Doe"> 
 
@@ -104,6 +105,14 @@
   
 
 
+<nav class="navbar">
+  <div class="left"></div>
+  <div class="center">spingMVC</div>
+  <div class="right">
+    <i class="iconfont iconmenu j-navbar-menu"></i>
+  </div>
+</nav>
+
   <nav class="menu">
   <div class="menu-wrap">
     <div class="menu-close">
@@ -152,19 +161,18 @@
     <section class="head">
   <img   class="lazyload" data-original="/cardioid/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title"></h1>
+    <h1 class="head-title">spingMVC</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 29, 2020</span
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 29, 2019</span
         class="post-info-item">
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3769</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3727</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <p>title: springMVC<br>date: 2020-09-29 20:35:58</p>
-<p>springMVC-请求</p>
+        <p>springMVC-请求</p>
 <h4 id="1-请求参数的获取"><a href="#1-请求参数的获取" class="headerlink" title="1.请求参数的获取"></a>1.请求参数的获取</h4><h5 id="参数的类型"><a href="#参数的类型" class="headerlink" title="参数的类型"></a>参数的类型</h5><h6 id="①普通类型"><a href="#①普通类型" class="headerlink" title="①普通类型"></a>①普通类型</h6><p>访问的url地址： </p>
 <p><a target="_blank" rel="noopener" href="http://localhost/requestParam1?name=wyg&amp;age=23">http://localhost/requestParam1?name=wyg&amp;age=23</a></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/requestParam1&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">requestParam1</span><span class="params">(String name ,String age)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;name=&quot;</span>+name+<span class="string">&quot;,age=&quot;</span>+age);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;page.jsp&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -248,7 +256,7 @@
         <ul class="copyright">
   
   <li><strong>本文作者：</strong>John Doe</li>
-  <li><strong>本文链接：</strong><a href="http://cardioid.gitee.io/cardioid/2020/09/29/1%E3%80%81springMVC%E8%AF%B7%E6%B1%82/index.html">http://cardioid.gitee.io/cardioid/2020/09/29/1%E3%80%81springMVC%E8%AF%B7%E6%B1%82/index.html</a></li>
+  <li><strong>本文链接：</strong><a href="http://cardioid.gitee.io/cardioid/2019/09/29/1%E3%80%81springMVC%E8%AF%B7%E6%B1%82/index.html">http://cardioid.gitee.io/cardioid/2019/09/29/1%E3%80%81springMVC%E8%AF%B7%E6%B1%82/index.html</a></li>
   <li><strong>版权声明：</strong>本博客所有文章均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"
       rel="external nofollow" target="_blank"> BY-NC-SA </a>许可协议，转载请注明出处！</li>
   
@@ -269,8 +277,8 @@
         
 <nav class="nav">
   
+    <a href="/cardioid/2020/09/29/hello-world/"><i class="iconfont iconleft"></i>Hello World</a>
   
-    <a href="/cardioid/2020/09/29/3%E3%80%81springMVC%E8%AF%B7%E6%B1%82/"><i class="iconfont iconright"></i></a>
   
 </nav>
 
