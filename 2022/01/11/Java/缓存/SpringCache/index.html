@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Spring Cache |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/缓存/SpringCache"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Spring Cache
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/01/11/Java/%E7%BC%93%E5%AD%98/SpringCache/" class="article-date">
+  <time datetime="2022-01-11T14:14:11.000Z" itemprop="datePublished">2022-01-11</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%93%E5%AD%98/">缓存</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="Spring-Cache"><a href="#Spring-Cache" class="headerlink" title="Spring Cache"></a>Spring Cache</h2><h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><ul>
+<li>Spring 从3.1开始定义了 <code>org.springframework.cache.Cache</code> 和 <code>org.sprngframework.cache.CacheManager</code> 接口睐统一不同的缓存技术</li>
+<li>并支持使用 <code>JCache</code>（JSR-107）注解简化我们的开发</li>
+<li>Cache 接口为缓存的组件规范定义，包含缓存的各种操作集合 <code>Cache</code> 接口下 Spring 提供了各种 XXXCache的实现，如 <code>RedisCache</code>、<code>EhCache</code>,<code>ConcrrentMapCache</code>等等，</li>
+<li>每次调用需要缓存功能实现方法的时候，<code>Spring</code> 会检查检查指定参数的马努表犯法是否已经被嗲用过，如果有就直接从缓存中获取方法调用后的结果，如果没有就调用方法并缓存结果后返回给用户，下次直接调用从缓存中获取</li>
+<li>使用 <code>Sprng</code> 缓存抽象时我们需要关注的点有以下两点<ul>
+<li>1、确定方法需要被缓存以及他们的的缓存策略</li>
+<li>2、从缓存中读取之前缓存存储的数据</li>
+</ul>
+</li>
+</ul>
+<p>官网地址：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/5.2.10.RELEASE/spring-framework-reference/integration.html#cache-strategie">https://docs.spring.io/spring-framework/docs/5.2.10.RELEASE/spring-framework-reference/integration.html#cache-strategie</a></p>
+<p>缓存注解配置</p>
+<p><img src="/SpringCache/image-20201228171806703.png" alt="image-20201228171806703"></p>
+<h4 id="2、基础概念"><a href="#2、基础概念" class="headerlink" title="2、基础概念"></a>2、基础概念</h4><p>从3.1版本开始，Spring 框架就支持透明地向现有 Spring 应用程序添加缓存。与事务支持类似，缓存抽象允许在对代码影响最小的情况下一致地使用各种缓存解决方案。从 Spring 4.1 开始，缓存抽象在JSR-107注释和更多定制选项的支持下得到了显著扩展。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*  8、整合SpringCache简化缓存开发</span></span><br><span class="line"><span class="comment">*      1、引入依赖</span></span><br><span class="line"><span class="comment">*          spring-boot-starter-cache</span></span><br><span class="line"><span class="comment">*      2、写配置</span></span><br><span class="line"><span class="comment">*          1、自动配置了那些</span></span><br><span class="line"><span class="comment">*              CacheAutoConfiguration会导入 RedisCacheConfiguration</span></span><br><span class="line"><span class="comment">*              自动配置好了缓存管理器，RedisCacheManager</span></span><br><span class="line"><span class="comment">*          2、配置使用redis作为缓存</span></span><br><span class="line"><span class="comment">*          Spring.cache.type=redis</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*       4、原理</span></span><br><span class="line"><span class="comment">*       CacheAutoConfiguration -&gt;RedisCacheConfiguration -&gt;</span></span><br><span class="line"><span class="comment">*       自动配置了 RedisCacheManager -&gt;初始化所有的缓存 -&gt; 每个缓存决定使用什么配置</span></span><br><span class="line"><span class="comment">*       -&gt;如果redisCacheConfiguration有就用已有的，没有就用默认的</span></span><br><span class="line"><span class="comment">*       -&gt;想改缓存的配置，只需要把容器中放一个 RedisCacheConfiguration 即可</span></span><br><span class="line"><span class="comment">*       -&gt;就会应用到当前 RedisCacheManager管理所有缓存分区中</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、注解"><a href="#3、注解" class="headerlink" title="3、注解"></a>3、注解</h4><p>对于缓存声明，Spring的缓存抽象提供了一组Java注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"><span class="doctag">@Cacheable</span>: Triggers cache population:触发将数据保存到缓存的操作</span></span><br><span class="line"><span class="comment"><span class="doctag">@CacheEvict</span>: Triggers cache eviction: 触发将数据从缓存删除的操作</span></span><br><span class="line"><span class="comment"><span class="doctag">@CachePut</span>: Updates the cache without interfering with the method execution:不影响方法执行更新缓存</span></span><br><span class="line"><span class="comment"><span class="doctag">@Caching</span>: Regroups multiple cache operations to be applied on a method:组合以上多个操作</span></span><br><span class="line"><span class="comment"><span class="doctag">@CacheConfig</span>: Shares some common cache-related settings at class-level:在类级别共享缓存的相同配置</span></span><br><span class="line"><span class="comment">**/</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注解使用</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 1、每一个需要缓存的数据我们都需要指定放到那个名字的缓存【缓存分区的划分【按照业务类型划分】】</span></span><br><span class="line"><span class="comment">     * 2、<span class="doctag">@Cacheable</span>(&#123;&quot;category&quot;&#125;)</span></span><br><span class="line"><span class="comment">     *      代表当前方法的结果需要缓存，如果缓存中有，方法不调用</span></span><br><span class="line"><span class="comment">     *      如果缓存中没有，调用方法，最后将方法的结果放入缓存</span></span><br><span class="line"><span class="comment">     * 3、默认行为:</span></span><br><span class="line"><span class="comment">     *      1、如果缓存中有，方法不用调用</span></span><br><span class="line"><span class="comment">     *      2、key默自动生成，缓存的名字:SimpleKey[](自动生成的key值)</span></span><br><span class="line"><span class="comment">     *      3、缓存中value的值，默认使用jdk序列化，将序列化后的数据存到redis</span></span><br><span class="line"><span class="comment">     *      3、默认的过期时间，-1</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     *    自定义操作</span></span><br><span class="line"><span class="comment">     *      1、指定缓存使用的key     key属性指定，接收一个SpEl</span></span><br><span class="line"><span class="comment">     *      2、指定缓存数据的存活时间  配置文件中修改ttl</span></span><br><span class="line"><span class="comment">     *      3、将数据保存为json格式</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">	<span class="comment">//value 缓存的别名</span></span><br><span class="line">     <span class="comment">// key redis中key的名称，默认是方法名称</span></span><br><span class="line">    <span class="meta">@Cacheable(value = &#123;&quot;category&quot;&#125;,key = &quot;#root.method.name&quot;)</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;CategoryEntity&gt; <span class="title function_">getLevel1Categorys</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">l</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="comment">// parent_cid为0则是一级目录</span></span><br><span class="line">        List&lt;CategoryEntity&gt; categoryEntities = baseMapper.selectList(<span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;CategoryEntity&gt;().eq(<span class="string">&quot;parent_cid&quot;</span>, <span class="number">0</span>));</span><br><span class="line">        System.out.println(<span class="string">&quot;耗费时间：&quot;</span> + (System.currentTimeMillis() - l));</span><br><span class="line">        <span class="keyword">return</span> categoryEntities;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、表达式语法"><a href="#4、表达式语法" class="headerlink" title="4、表达式语法"></a>4、表达式语法</h4><p>配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.atguigu.gulimall.product.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.cache.CacheProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.properties.EnableConfigurationProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.cache.annotation.EnableCaching;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.cache.RedisCacheConfiguration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.serializer.RedisSerializationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.serializer.StringRedisSerializer;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> gcq</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Create</span> 2020-11-01</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(CacheProperties.class)</span></span><br><span class="line"><span class="meta">@EnableCaching</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyCacheConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 配置文件中的东西没有用上</span></span><br><span class="line"><span class="comment">     * 1、原来的配置吻技安绑定的配置类是这样子的</span></span><br><span class="line"><span class="comment">     *      <span class="doctag">@ConfigurationProperties</span>(prefix = &quot;Spring.cache&quot;)</span></span><br><span class="line"><span class="comment">     * 2、要让他生效</span></span><br><span class="line"><span class="comment">     *      <span class="doctag">@EnableConfigurationProperties</span>(CacheProperties.class)</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> cacheProperties</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    RedisCacheConfiguration <span class="title function_">redisCacheConfiguration</span><span class="params">(CacheProperties cacheProperties)</span> &#123;</span><br><span class="line">        <span class="type">RedisCacheConfiguration</span> <span class="variable">config</span> <span class="operator">=</span> RedisCacheConfiguration.defaultCacheConfig();</span><br><span class="line">        <span class="comment">// 设置key的序列化</span></span><br><span class="line">        config = config.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(<span class="keyword">new</span> <span class="title class_">StringRedisSerializer</span>()));</span><br><span class="line">        <span class="comment">// 设置value序列化 -&gt;JackSon</span></span><br><span class="line">        config = config.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(<span class="keyword">new</span> <span class="title class_">GenericJackson2JsonRedisSerializer</span>()));</span><br><span class="line"></span><br><span class="line">        CacheProperties.<span class="type">Redis</span> <span class="variable">redisProperties</span> <span class="operator">=</span> cacheProperties.getRedis();</span><br><span class="line">        <span class="keyword">if</span> (redisProperties.getTimeToLive() != <span class="literal">null</span>) &#123;</span><br><span class="line">            config = config.entryTtl(redisProperties.getTimeToLive());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (redisProperties.getKeyPrefix() != <span class="literal">null</span>) &#123;</span><br><span class="line">            config = config.prefixKeysWith(redisProperties.getKeyPrefix());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!redisProperties.isCacheNullValues()) &#123;</span><br><span class="line">            config = config.disableCachingNullValues();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!redisProperties.isUseKeyPrefix()) &#123;</span><br><span class="line">            config = config.disableKeyPrefix();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> config;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>yaml </p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Spring:</span></span><br><span class="line">  <span class="attr">cache:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">redis</span></span><br><span class="line">    <span class="attr">redis:</span></span><br><span class="line">      <span class="attr">time-to-live:</span> <span class="number">3600000</span>           <span class="comment"># 过期时间</span></span><br><span class="line">      <span class="attr">key-prefix:</span> <span class="string">CACHE_</span>              <span class="comment"># key前缀</span></span><br><span class="line">      <span class="attr">use-key-prefix:</span> <span class="literal">true</span>            <span class="comment"># 是否使用写入redis前缀</span></span><br><span class="line">      <span class="attr">cache-null-values:</span> <span class="literal">true</span>         <span class="comment"># 是否允许缓存空值</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5、缓存穿透问题解决"><a href="#5、缓存穿透问题解决" class="headerlink" title="5、缓存穿透问题解决"></a>5、缓存穿透问题解决</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 1、每一个需要缓存的数据我们都需要指定放到那个名字的缓存【缓存分区的划分【按照业务类型划分】】</span></span><br><span class="line"><span class="comment"> * 2、<span class="doctag">@Cacheable</span>(&#123;&quot;category&quot;&#125;)</span></span><br><span class="line"><span class="comment"> *      代表当前方法的结果需要缓存，如果缓存中有，方法不调用</span></span><br><span class="line"><span class="comment"> *      如果缓存中没有，调用方法，最后将方法的结果放入缓存</span></span><br><span class="line"><span class="comment"> * 3、默认行为:</span></span><br><span class="line"><span class="comment"> *      1、如果缓存中有，方法不用调用</span></span><br><span class="line"><span class="comment"> *      2、key默自动生成，缓存的名字:SimpleKey[](自动生成的key值)</span></span><br><span class="line"><span class="comment"> *      3、缓存中value的值，默认使用jdk序列化，将序列化后的数据存到redis</span></span><br><span class="line"><span class="comment"> *      3、默认的过期时间，-1</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    自定义操作</span></span><br><span class="line"><span class="comment"> *      1、指定缓存使用的key     key属性指定，接收一个SpEl</span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> <span class="doctag">@Cacheable</span>(value = &#123;&quot;category&quot;&#125;,key = &quot;#root.method.name&quot;)</span></span><br><span class="line"><span class="comment"> *      2、指定缓存数据的存活时间  配置文件中修改ttl</span></span><br><span class="line"><span class="comment"> Spring:</span></span><br><span class="line"><span class="comment">  cache:</span></span><br><span class="line"><span class="comment">    type: redis</span></span><br><span class="line"><span class="comment">    redis:</span></span><br><span class="line"><span class="comment">      time-to-live: 3600000      1h</span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> *      3、将数据保存为json格式</span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> * 4、Spring-Cache的不足：</span></span><br><span class="line"><span class="comment"> *      1、读模式：</span></span><br><span class="line"><span class="comment"> *          缓存穿透:查询一个null数据，解决 缓存空数据：ache-null-values=true</span></span><br><span class="line"><span class="comment"> *          缓存击穿:大量并发进来同时查询一个正好过期的数据，解决:加锁 ？ 默认是无加锁</span></span><br><span class="line"><span class="comment"> *          缓存雪崩:大量的key同时过期，解决：加上随机时间，Spring-cache-redis-time-to-live</span></span><br><span class="line"><span class="comment"> *       2、写模式：（缓存与数据库库不一致）</span></span><br><span class="line"><span class="comment"> *          1、读写加锁</span></span><br><span class="line"><span class="comment"> *          2、引入canal，感知到MySQL的更新去更新数据库</span></span><br><span class="line"><span class="comment"> *          3、读多写多，直接去数据库查询就行</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    总结：</span></span><br><span class="line"><span class="comment"> *      常规数据（读多写少，即时性，一致性要求不高的数据）完全可以使用SpringCache 写模式（ 只要缓存数据有过期时间就足够了）</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    特殊数据：特殊设计</span></span><br><span class="line"><span class="comment"> *      原理：</span></span><br><span class="line"><span class="comment"> *          CacheManager(RedisManager) -&gt; Cache(RedisCache) -&gt;Cache负责缓存的读写</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Cacheable(value = &#123;&quot;category&quot;&#125;,key = &quot;#root.method.name&quot;,sync = true)</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> List&lt;CategoryEntity&gt; <span class="title function_">getLevel1Categorys</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">long</span> <span class="variable">l</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">    <span class="comment">// parent_cid为0则是一级目录</span></span><br><span class="line">    List&lt;CategoryEntity&gt; categoryEntities = baseMapper.selectList(<span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;CategoryEntity&gt;().eq(<span class="string">&quot;parent_cid&quot;</span>, <span class="number">0</span>));</span><br><span class="line">    System.out.println(<span class="string">&quot;耗费时间：&quot;</span> + (System.currentTimeMillis() - l));</span><br><span class="line">    <span class="keyword">return</span> categoryEntities;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6、缓存更新"><a href="#6、缓存更新" class="headerlink" title="6、缓存更新"></a>6、缓存更新</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 级联更新所有的关联数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@CacheEvict</span> 失效模式</span></span><br><span class="line"><span class="comment">     * 1、同时进行多种缓存操作 <span class="doctag">@Caching</span></span></span><br><span class="line"><span class="comment">     * 2、指定删除某个分区下的所有数据 <span class="doctag">@CacheEvict</span>(value = &#123;&quot;category&quot;&#125;,allEntries = true)</span></span><br><span class="line"><span class="comment">     * 3、存储同一类型的数据，都可以指定成同一分区，分区名默认就是缓存的前缀</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> category</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Caching(evict = &#123;</span></span><br><span class="line"><span class="meta">            @CacheEvict(value = &#123;&quot;category&quot;&#125;,key = &quot;&#x27;getLevel1Categorys&#x27;&quot;),</span></span><br><span class="line"><span class="meta">            @CacheEvict(value = &#123;&quot;category&quot;&#125;,key = &quot;&#x27;getCatelogJson&#x27;&quot;)</span></span><br><span class="line"><span class="meta">    &#125;)</span></span><br><span class="line"><span class="comment">//    @CacheEvict(value = &#123;&quot;category&quot;&#125;,allEntries = true)</span></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updateCascate</span><span class="params">(CategoryEntity category)</span> &#123;</span><br><span class="line">        <span class="comment">// 更新自己表对象</span></span><br><span class="line">        <span class="built_in">this</span>.updateById(category);</span><br><span class="line">        <span class="comment">// 更新关联表对象</span></span><br><span class="line">        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>总结业务流程：</p>
+<p>如果忘了这个技术点看下做的笔记的例子，然后去官网看下文档，温故而知新</p>
+<p>流程图</p>
+<p><img src="/SpringCache/image-20201228171552816.png" alt="image-20201228171552816"></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2022/01/11/Java/%E7%BC%93%E5%AD%98/SpringCache/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%93%E5%AD%98/" rel="tag">缓存</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/02/04/Java/%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86/%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            数据分片，多线程处理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/01/11/Java/tomcat/Tomcat/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Tomcat的安装及配置</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    MybatisPlus整合 |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/MbatisPlus/mybatisplus"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  MybatisPlus整合
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/07/Java/MbatisPlus/mybatisplus/" class="article-date">
+  <time datetime="2020-09-07T01:25:00.000Z" itemprop="datePublished">2020-09-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/MybatisPlus/">MybatisPlus</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">3.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">16 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="MybatisPlus整合"><a href="#MybatisPlus整合" class="headerlink" title="MybatisPlus整合"></a>MybatisPlus整合</h2><p>参考网站 ：<a target="_blank" rel="noopener" href="https://baomidou.com/">https://baomidou.com/</a></p>
+<h3 id="1-配置环境"><a href="#1-配置环境" class="headerlink" title="1 配置环境"></a>1 配置环境</h3><h4 id="1-1、导入依赖"><a href="#1-1、导入依赖" class="headerlink" title="1.1、导入依赖"></a>1.1、导入依赖</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-plus-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2、配置数据源"><a href="#2-2、配置数据源" class="headerlink" title="2.2、配置数据源"></a>2.2、配置数据源</h4><p>配置数据源</p>
+<ol>
+<li><h5 id="导入数据库驱动"><a href="#导入数据库驱动" class="headerlink" title="导入数据库驱动"></a>导入数据库驱动</h5><p><a target="_blank" rel="noopener" href="https://mvnrepository.com/artifact/mysql/mysql-connector-java">https://mvnrepository.com/artifact/mysql/mysql-connector-java</a></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--导入mysql驱动--&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.17<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><h5 id="在application-yml配置数据源相关信息"><a href="#在application-yml配置数据源相关信息" class="headerlink" title="在application.yml配置数据源相关信息"></a>在application.yml配置数据源相关信息</h5><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">driver-class-name:</span> <span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://gulimall-mysql:3306/gulimall_pms?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=Asia/Shanghai</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">xxx</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="attr">mybatis-plus:</span></span><br><span class="line">  <span class="attr">mapper-locations:</span> <span class="string">classpath:/mapper/**/*.xml</span></span><br><span class="line"><span class="comment">#  主键自增</span></span><br><span class="line">  <span class="attr">global-config:</span></span><br><span class="line">    <span class="attr">db-config:</span></span><br><span class="line">      <span class="attr">id-type:</span> <span class="string">auto</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#      逻辑删除</span></span><br><span class="line">      <span class="attr">logic-delete-field:</span> <span class="string">flag</span> <span class="comment"># 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)</span></span><br><span class="line">      <span class="attr">logic-delete-value:</span> <span class="number">1</span> <span class="comment"># 逻辑已删除值(默认为 1)</span></span><br><span class="line">      <span class="attr">logic-not-delete-value:</span> <span class="number">0</span> <span class="comment"># 逻辑未删除值(默认为 0)</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>配置MyBatis-Plus包扫描：</p>
+<ol>
+<li><p>使用@MapperScanner</p>
+</li>
+<li><p>告诉MyBatis-Plus,Sql映射文件位置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MapperScan(&quot;wang.yg.product.dao&quot;)</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GulimallProductApplication</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(GulimallProductApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>具体过程参考官网： <a target="_blank" rel="noopener" href="https://baomidou.com/guide/install.html#release">https://baomidou.com/guide/install.html#release</a></p>
+<h3 id="2-分页配置"><a href="#2-分页配置" class="headerlink" title="2 分页配置"></a>2 分页配置</h3><p> &#x2F;&#x2F; 最新版</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> wang.yg.gulimall.product.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.annotation.DbType;</span><br><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;</span><br><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;</span><br><span class="line"><span class="keyword">import</span> org.mybatis.spring.annotation.MapperScan;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.transaction.annotation.EnableTransactionManagement;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Spring boot方式</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableTransactionManagement</span></span><br><span class="line"><span class="meta">@MapperScan(&quot;wang.yg.product.dao&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MybatisPlusConfig</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 最新版</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> MybatisPlusInterceptor <span class="title function_">mybatisPlusInterceptor</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">MybatisPlusInterceptor</span> <span class="variable">interceptor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MybatisPlusInterceptor</span>();</span><br><span class="line">        interceptor.addInnerInterceptor(<span class="keyword">new</span> <span class="title class_">PaginationInnerInterceptor</span>(DbType.MYSQL));</span><br><span class="line">        <span class="keyword">return</span> interceptor;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span> <span class="comment">// 声明配置类</span></span><br><span class="line"><span class="meta">@EnableTransactionManagement</span> <span class="comment">// 开启注解</span></span><br><span class="line"><span class="meta">@MapperScan(&quot;com.atguigu.gulimall.product.dao&quot;)</span> <span class="comment">// 指定扫描包</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyBatisConfig</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 引入分页插件 拦截器</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> PaginationInterceptor <span class="title function_">paginationInterceptor</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">PaginationInterceptor</span> <span class="variable">paginationInterceptor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PaginationInterceptor</span>();</span><br><span class="line">        <span class="comment">// 设置请求的页面大于最大页后操作， true调回到首页，false 继续请求  默认false</span></span><br><span class="line">         paginationInterceptor.setOverflow(<span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 设置最大单页限制数量，默认 500 条，-1 不受限制</span></span><br><span class="line">         paginationInterceptor.setLimit(<span class="number">1000</span>);</span><br><span class="line">        <span class="comment">// 开启 count 的 join 优化,只针对部分 left join</span></span><br><span class="line">        paginationInterceptor.setCountSqlParser(<span class="keyword">new</span> <span class="title class_">JsqlParserCountOptimize</span>(<span class="literal">true</span>));</span><br><span class="line">        <span class="keyword">return</span> paginationInterceptor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-逻辑删除"><a href="#3-逻辑删除" class="headerlink" title="3 逻辑删除"></a>3 逻辑删除</h3><p>说明:</p>
+<p>只对自动注入的sql起效:</p>
+<ul>
+<li>插入: 不作限制</li>
+<li>查找: 追加where条件过滤掉已删除数据,且使用 wrapper.entity 生成的where条件会忽略该字段</li>
+<li>更新: 追加where条件防止更新到已删除数据,且使用 wrapper.entity 生成的where条件会忽略该字段</li>
+<li>删除: 转变为 更新</li>
+</ul>
+<p>例如:</p>
+<ul>
+<li>删除: <code>update user set deleted=1 where id = 1 and deleted=0</code></li>
+<li>查找: <code>select id,name,deleted from user where deleted=0</code></li>
+</ul>
+<h4 id="步骤1：配置-application-yml"><a href="#步骤1：配置-application-yml" class="headerlink" title="步骤1：配置 application.yml"></a>步骤1：配置 application.yml</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mybatis-plus:</span></span><br><span class="line">  <span class="attr">mapper-locations:</span> <span class="string">classpath*:/mapper/**/*.xml</span></span><br><span class="line">  <span class="attr">global-config:</span></span><br><span class="line">    <span class="attr">db-config:</span></span><br><span class="line">      <span class="attr">id-type:</span> <span class="string">auto</span> <span class="comment"># 数据库主键自增</span></span><br><span class="line">      <span class="attr">logic-delete-value:</span> <span class="number">1</span> <span class="comment"># 逻辑已删除值(默认为 1)</span></span><br><span class="line">      <span class="attr">logic-not-delete-value:</span> <span class="number">0</span> <span class="comment"># 逻辑未删除值(默认为 0)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤2-实体类字段上加上-TableLogic注解"><a href="#步骤2-实体类字段上加上-TableLogic注解" class="headerlink" title="步骤2: 实体类字段上加上@TableLogic注解"></a>步骤2: 实体类字段上加上<code>@TableLogic</code>注解</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 是否显示[0-不显示，1显示]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@TableLogic(value = &quot;1&quot;,delval = &quot;0&quot;)</span></span><br><span class="line"><span class="keyword">private</span> Integer showStatus;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-实体类"><a href="#4-实体类" class="headerlink" title="4.实体类"></a>4.实体类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   *  重要 mybatis对应的数据库的属性字段的命名不可以用‘大写’</span></span><br><span class="line"><span class="comment">   *  数据库的字段命名方式为使用下划线连接，对应的实体类应该是驼峰命名方式</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="meta">@EqualsAndHashCode</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@TableName(&quot;tb_user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableId(type = IdType.AUTO)</span></span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="comment">/*查询不能被查出*/</span></span><br><span class="line">    <span class="meta">@TableField(select = false)</span></span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="comment">/*名词不匹配的时候*/</span></span><br><span class="line">    <span class="meta">@TableField(value = &quot;email&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    数据库中不存在这个字段</span></span><br><span class="line"><span class="comment">    @TableField(exist = false)</span></span><br><span class="line"><span class="comment">    private String address;*/</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-mapper层"><a href="#5-mapper层" class="headerlink" title="5.mapper层"></a>5.mapper层</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> wang.yinggang.mapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.core.mapper.BaseMapper;</span><br><span class="line"><span class="keyword">import</span> wang.yinggang.pojo.User;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserMapper</span> <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;User&gt; &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-使用"><a href="#6-使用" class="headerlink" title="6.使用"></a>6.使用</h3><h4 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">eq(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 =，例: eq(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;老王&quot;</span>) ---&gt; name = <span class="string">&#x27;老王&#x27;</span></span><br><span class="line">ne(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 &lt;&gt;，例: ne(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;老王&quot;</span>) ---&gt; name &lt;&gt; <span class="string">&#x27;老王&#x27;</span></span><br><span class="line">gt(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 &gt;，例: gt(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;老王&quot;</span>) ---&gt; name &gt; <span class="string">&#x27;老王&#x27;</span></span><br><span class="line">ge(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 &gt;=，例: ge(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;老王&quot;</span>) ---&gt; name &gt;= <span class="string">&#x27;老王&#x27;</span></span><br><span class="line">lt(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 &lt;，例: lt(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;老王&quot;</span>) ---&gt; name &lt; <span class="string">&#x27;老王&#x27;</span></span><br><span class="line">le(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 &lt;=，例: le(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;老王&quot;</span>) ---&gt; name &lt;= <span class="string">&#x27;老王&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="范围"><a href="#范围" class="headerlink" title="范围"></a>范围</h4><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">between(R column, <span class="built_in">Object</span> val1, <span class="built_in">Object</span> val2); <span class="comment">// 等价于 between a and b, 例： between(&quot;age&quot;, 18, 30) ---&gt; age between 18 and 30</span></span><br><span class="line">notBetween(R column, <span class="built_in">Object</span> val1, <span class="built_in">Object</span> val2); <span class="comment">// 等价于 not between a and b, 例： notBetween(&quot;age&quot;, 18, 30) ---&gt; age not between 18 and 30</span></span><br><span class="line"><span class="keyword">in</span>(R column, <span class="built_in">Object</span>... values); <span class="comment">// 等价于 字段 IN (v0, v1, ...),例: in(&quot;age&quot;,&#123;1,2,3&#125;) ---&gt; age in (1,2,3)</span></span><br><span class="line">notIn(R column, <span class="built_in">Object</span>... values); <span class="comment">// 等价于 字段 NOT IN (v0, v1, ...), 例: notIn(&quot;age&quot;,&#123;1,2,3&#125;) ---&gt; age not in (1,2,3)</span></span><br><span class="line">inSql(R column, <span class="built_in">Object</span>... values); <span class="comment">// 等价于 字段 IN (sql 语句), 例: inSql(&quot;id&quot;, &quot;select id from table where id &lt; 3&quot;) ---&gt; id in (select id from table where id &lt; 3)</span></span><br><span class="line">notInSql(R column, <span class="built_in">Object</span>... values); <span class="comment">// 等价于 字段 NOT IN (sql 语句)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="like"><a href="#like" class="headerlink" title="like"></a>like</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">like(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 <span class="variable constant_">LIKE</span> <span class="string">&#x27;%值%&#x27;</span>，例: like(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;王&quot;</span>) ---&gt; name like <span class="string">&#x27;%王%&#x27;</span></span><br><span class="line">notLike(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 <span class="variable constant_">NOT</span> <span class="variable constant_">LIKE</span> <span class="string">&#x27;%值%&#x27;</span>，例: notLike(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;王&quot;</span>) ---&gt; name <span class="keyword">not</span> like <span class="string">&#x27;%王%&#x27;</span></span><br><span class="line">likeLeft(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 <span class="variable constant_">LIKE</span> <span class="string">&#x27;%值&#x27;</span>，例: likeLeft(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;王&quot;</span>) ---&gt; name like <span class="string">&#x27;%王&#x27;</span></span><br><span class="line">likeRight(R column, <span class="title class_">Object</span> val); <span class="regexp">//</span> 等价于 <span class="variable constant_">LIKE</span> <span class="string">&#x27;值%&#x27;</span>，例: likeRight(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;王&quot;</span>) ---&gt; name like <span class="string">&#x27;王%&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="空值比较"><a href="#空值比较" class="headerlink" title="空值比较"></a>空值比较</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">isNull(R column); <span class="regexp">//</span> 等价于 <span class="variable constant_">IS</span> <span class="variable constant_">NULL</span>，例: isNull(<span class="string">&quot;name&quot;</span>) ---&gt; name is null</span><br><span class="line">isNotNull(R column); <span class="regexp">//</span> 等价于 <span class="variable constant_">IS</span> <span class="variable constant_">NOT</span> <span class="variable constant_">NULL</span>，例: isNotNull(<span class="string">&quot;name&quot;</span>) ---&gt; name is <span class="keyword">not</span> null</span><br></pre></td></tr></table></figure>
+
+<h4 id="【分组、排序：（group、having、order）】"><a href="#【分组、排序：（group、having、order）】" class="headerlink" title="【分组、排序：（group、having、order）】"></a>【分组、排序：（group、having、order）】</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">groupBy(R... columns); <span class="regexp">//</span> 等价于 <span class="variable constant_">GROUP</span> <span class="variable constant_">BY</span> 字段, ...， 例: groupBy(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>) ---&gt; group by id,name</span><br><span class="line">orderByAsc(R... columns); <span class="regexp">//</span> 等价于 <span class="variable constant_">ORDER</span> <span class="variable constant_">BY</span> 字段, ... <span class="variable constant_">ASC</span>， 例: orderByAsc(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>) ---&gt; order by id <span class="variable constant_">ASC</span>,name <span class="variable constant_">ASC</span></span><br><span class="line">orderByDesc(R... columns); <span class="regexp">//</span> 等价于 <span class="variable constant_">ORDER</span> <span class="variable constant_">BY</span> 字段, ... <span class="variable constant_">DESC</span>， 例: orderByDesc(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>) ---&gt; order by id <span class="variable constant_">DESC</span>,name <span class="variable constant_">DESC</span></span><br><span class="line">having(<span class="title class_">String</span> sqlHaving, <span class="title class_">Object</span>... params); <span class="regexp">//</span> 等价于 <span class="variable constant_">HAVING</span> ( sql语句 )， 例: having(<span class="string">&quot;sum(age) &gt; &#123;0&#125;&quot;</span>, <span class="number">11</span>) ---&gt; having sum(age) &gt; <span class="number">11</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="【拼接、嵌套-sql：（or、and、nested、apply）】"><a href="#【拼接、嵌套-sql：（or、and、nested、apply）】" class="headerlink" title="【拼接、嵌套 sql：（or、and、nested、apply）】"></a>【拼接、嵌套 sql：（or、and、nested、apply）】</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">or</span>(); <span class="regexp">//</span> 等价于 a <span class="keyword">or</span> b， 例：eq(<span class="string">&quot;id&quot;</span>,<span class="number">1</span>).<span class="keyword">or</span>().eq(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;老王&quot;</span>) ---&gt; id = <span class="number">1</span> <span class="keyword">or</span> name = <span class="string">&#x27;老王&#x27;</span></span><br><span class="line"><span class="keyword">or</span>(<span class="title class_">Consumer</span>&lt;<span class="title class_">Param</span>&gt; consumer); <span class="regexp">//</span> 等价于 <span class="keyword">or</span>(a <span class="keyword">or</span>/<span class="keyword">and</span> b)，<span class="keyword">or</span> 嵌套。例: <span class="keyword">or</span>(i -&gt; i.eq(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;李白&quot;</span>).ne(<span class="string">&quot;status&quot;</span>, <span class="string">&quot;活着&quot;</span>)) ---&gt; <span class="keyword">or</span> (name = <span class="string">&#x27;李白&#x27;</span> <span class="keyword">and</span> status &lt;&gt; <span class="string">&#x27;活着&#x27;</span>)</span><br><span class="line"><span class="keyword">and</span>(<span class="title class_">Consumer</span>&lt;<span class="title class_">Param</span>&gt; consumer); <span class="regexp">//</span> 等价于 <span class="keyword">and</span>(a <span class="keyword">or</span>/<span class="keyword">and</span> b)，<span class="keyword">and</span> 嵌套。例: <span class="keyword">and</span>(i -&gt; i.eq(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;李白&quot;</span>).ne(<span class="string">&quot;status&quot;</span>, <span class="string">&quot;活着&quot;</span>)) ---&gt; <span class="keyword">and</span> (name = <span class="string">&#x27;李白&#x27;</span> <span class="keyword">and</span> status &lt;&gt; <span class="string">&#x27;活着&#x27;</span>)</span><br><span class="line">nested(<span class="title class_">Consumer</span>&lt;<span class="title class_">Param</span>&gt; consumer); <span class="regexp">//</span> 等价于 (a <span class="keyword">or</span>/<span class="keyword">and</span> b)，普通嵌套。例: nested(i -&gt; i.eq(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;李白&quot;</span>).ne(<span class="string">&quot;status&quot;</span>, <span class="string">&quot;活着&quot;</span>)) ---&gt; (name = <span class="string">&#x27;李白&#x27;</span> <span class="keyword">and</span> status &lt;&gt; <span class="string">&#x27;活着&#x27;</span>)</span><br><span class="line">apply(<span class="title class_">String</span> applySql, <span class="title class_">Object</span>... params); <span class="regexp">//</span> 拼接sql（若不使用 params 参数，可能存在 sql 注入），例: apply(<span class="string">&quot;date_format(dateColumn,&#x27;%Y-%m-%d&#x27;) = &#123;0&#125;&quot;</span>, <span class="string">&quot;2008-08-08&quot;</span>) ---&gt; date_format(dateColumn,<span class="string">&#x27;%Y-%m-%d&#x27;</span>) = <span class="string">&#x27;2008-08-08&#x27;</span><span class="string">&quot;)</span></span><br><span class="line"><span class="string">last(String lastSql); // 无视优化规则直接拼接到 sql 的最后，可能存若在 sql 注入。</span></span><br><span class="line"><span class="string">exists(String existsSql); // 拼接 exists 语句。例: exists(&quot;</span>select id from table where age = <span class="number">1</span><span class="string">&quot;) ---&gt; exists (select id from table where age = 1)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="QueryWrapper"><a href="#QueryWrapper" class="headerlink" title="QueryWrapper"></a>QueryWrapper</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select(<span class="title class_">String</span>... sqlSelect); <span class="regexp">//</span> 用于定义需要返回的字段。例： select(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;age&quot;</span>) ---&gt; select id, name, age</span><br><span class="line">select(<span class="title class_">Predicate</span>&lt;<span class="title class_">TableFieldInfo</span>&gt; predicate); <span class="regexp">//</span> <span class="title class_">Lambda</span> 表达式，过滤需要的字段。</span><br><span class="line"><span class="built_in">lambda</span>(); <span class="regexp">//</span> 返回一个 <span class="title class_">LambdaQueryWrapper</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="UpdateWrapper"><a href="#UpdateWrapper" class="headerlink" title="UpdateWrapper"></a>UpdateWrapper</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span>(String column, Object val); // 用于设置 <span class="built_in">set</span> 字段值。例: <span class="built_in">set</span>(<span class="string">&quot;name&quot;</span>, null) ---&gt; <span class="built_in">set</span> name = null</span><br><span class="line">setSql(String sql); // 用于设置 <span class="built_in">set</span> 字段值。例: setSql(<span class="string">&quot;name = &#x27;老李头&#x27;&quot;</span>) ---&gt; <span class="built_in">set</span> name = <span class="string">&#x27;老李头&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h4 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h4><ul>
+<li><h5 id="查询全部"><a href="#查询全部" class="headerlink" title="查询全部"></a>查询全部</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">userMapper.selectList(null)；</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+<li><h5 id="模糊查询"><a href="#模糊查询" class="headerlink" title="模糊查询"></a>模糊查询</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QueryWrapper&lt;User&gt; wrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">wrapper.like(<span class="string">&quot;email&quot;</span>,<span class="string">&quot;@&quot;</span>);</span><br><span class="line">List&lt;User&gt; userList = userMapper.selectList(wrapper);</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+<li><h5 id="分页查询"><a href="#分页查询" class="headerlink" title="分页查询"></a>分页查询</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.extension.plugins.pagination.Page;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//current 当前页 size 每页查询条数</span></span><br><span class="line"> Page&lt;User&gt; page = <span class="keyword">new</span> <span class="title class_">Page</span>&lt;&gt;(<span class="number">1</span>,<span class="number">5</span>);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">	 QueryWrapper&lt;User&gt; wrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line"> 	 wrapper.like(<span class="string">&quot;email&quot;</span>,<span class="string">&quot;@&quot;</span>);</span><br><span class="line"> </span><br><span class="line"> <span class="comment">//分页查询</span></span><br><span class="line"> IPage&lt;User&gt; ipage = userMapper.selectPage(page, wrapper);</span><br><span class="line">  </span><br><span class="line">       System.out.println(<span class="string">&quot;获取分页信息&quot;</span>);</span><br><span class="line">       System.out.println(<span class="string">&quot;总条数&quot;</span>+ipage.getTotal());</span><br><span class="line">       System.out.println(<span class="string">&quot;当前页码&quot;</span>+ipage.getCurrent());</span><br><span class="line">       System.out.println(<span class="string">&quot;总页码&quot;</span>+ipage.getPages());</span><br><span class="line">       System.out.println(<span class="string">&quot;每页显示的条数&quot;</span>+ipage.getSize());</span><br><span class="line">  </span><br><span class="line">       <span class="comment">//结果</span></span><br><span class="line">       List&lt;User&gt; records = ipage.getRecords();</span><br><span class="line">       <span class="keyword">for</span> (User record : records) &#123;</span><br><span class="line">           System.out.println(record);</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h5 id="通过id查询"><a href="#通过id查询" class="headerlink" title="通过id查询"></a>通过id查询</h5></li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectById(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h5 id="通过id批量查询"><a href="#通过id批量查询" class="headerlink" title="通过id批量查询"></a>通过id批量查询</h5></li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;User&gt; users = userMapper.selectBatchIds(Arrays.asList(<span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h5 id="查询数据条数"><a href="#查询数据条数" class="headerlink" title="查询数据条数"></a>查询数据条数</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wrapper.gt(<span class="string">&quot;age&quot;</span>,<span class="number">20</span>);<span class="comment">//年龄大于20岁</span></span><br><span class="line"><span class="type">Integer</span> <span class="variable">count</span> <span class="operator">=</span> userMapper.selectCount(wrapper);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="新增"><a href="#新增" class="headerlink" title="新增"></a>新增</h4><ul>
+<li><h5 id="新增一条数据"><a href="#新增一条数据" class="headerlink" title="新增一条数据"></a>新增一条数据</h5></li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>(<span class="literal">null</span>,<span class="string">&quot;lisi&quot;</span>,<span class="number">14</span>,<span class="string">&quot;12345@qq.com&quot;</span>);</span><br><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.insert(user); <span class="comment">//不等于0插入数据成功</span></span><br></pre></td></tr></table></figure>
+<h4 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h4><ul>
+<li><h5 id="根据ID更新"><a href="#根据ID更新" class="headerlink" title="根据ID更新"></a>根据ID更新</h5></li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>(<span class="number">1</span>,<span class="string">&quot;lisi&quot;</span>,<span class="number">14</span>,<span class="string">&quot;12345@qq.com&quot;</span>);</span><br><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.updateById(user);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>根据条件进行更新QueryWrapper</li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*更新的内容为将age 设置为20*/</span></span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.setAge(<span class="number">20</span>);</span><br><span class="line"></span><br><span class="line">        QueryWrapper&lt;User&gt; wrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">        <span class="comment">/*查询根据name为lisi的数据进行更新*/</span></span><br><span class="line">        wrapper.eq(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;lisi&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.update(user, wrapper);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><h5 id="根据条件进行更新UpdateWrapper"><a href="#根据条件进行更新UpdateWrapper" class="headerlink" title="根据条件进行更新UpdateWrapper"></a>根据条件进行更新UpdateWrapper</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UpdateWrapper&lt;User&gt; wrapper = <span class="keyword">new</span> <span class="title class_">UpdateWrapper</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        wrapper.set(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;zhangsan&quot;</span>).set(<span class="string">&quot;age&quot;</span>,<span class="number">13</span>)<span class="comment">//更新的字段</span></span><br><span class="line">        .eq(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;lisi&quot;</span>);<span class="comment">//更新的条件</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.update(<span class="literal">null</span>, wrapper);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><ul>
+<li><h5 id="删除一条数据"><a href="#删除一条数据" class="headerlink" title="删除一条数据"></a>删除一条数据</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.deleteById(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><h5 id="根据条件删除一条数据deleteByMap"><a href="#根据条件删除一条数据deleteByMap" class="headerlink" title="根据条件删除一条数据deleteByMap"></a>根据条件删除一条数据deleteByMap</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*删除条件*/</span></span><br><span class="line">        HashMap&lt;String, Object&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        map.put(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;zhangsan&quot;</span>);</span><br><span class="line">        map.put(<span class="string">&quot;age&quot;</span>,<span class="number">13</span>);</span><br><span class="line">		<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.deleteByMap(map);</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+<li><h5 id="根据条件删除一条数据"><a href="#根据条件删除一条数据" class="headerlink" title="根据条件删除一条数据"></a>根据条件删除一条数据</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*删除条件*/</span></span><br><span class="line">       <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">       user.setAge(<span class="number">20</span>);</span><br><span class="line">      QueryWrapper&lt;User&gt; wrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;(user);</span><br><span class="line">       <span class="comment">/*根据包装/条件 删除*/</span></span><br><span class="line">       <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.delete(wrapper);</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><h5 id="根据条件删除一条数据-1"><a href="#根据条件删除一条数据-1" class="headerlink" title="根据条件删除一条数据"></a>根据条件删除一条数据</h5></li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">QueryWrapper&lt;User&gt; wrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">       wrapper.eq(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;lisi&quot;</span>)</span><br><span class="line">               .eq(<span class="string">&quot;age&quot;</span>,<span class="number">13</span>);</span><br><span class="line">       <span class="comment">/*根据包装/条件 删除*/</span></span><br><span class="line">       <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.delete(wrapper);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h5 id="通过条件批量删除数据"><a href="#通过条件批量删除数据" class="headerlink" title="通过条件批量删除数据"></a>通过条件批量删除数据</h5></li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> userMapper.deleteBatchIds(Arrays.asList(<span class="number">3</span>,<span class="number">4</span>));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过id查询</li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectById(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过id查询</li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectById(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过id查询</li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectById(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过id查询</li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectById(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h3 id="7-复杂查询"><a href="#7-复杂查询" class="headerlink" title="7.复杂查询"></a>7.复杂查询</h3><h4 id="PageUtils-封装分页返回"><a href="#PageUtils-封装分页返回" class="headerlink" title="PageUtils 封装分页返回"></a>PageUtils 封装分页返回</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.yg.common.utils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.core.metadata.IPage;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageUtils</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 总记录数</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="type">int</span> totalCount;</span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 每页记录数</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 总页数</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="type">int</span> totalPage;</span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 当前页数</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="type">int</span> currPage;</span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 列表数据</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> List&lt;?&gt; list;</span><br><span class="line">   </span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 分页</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> list        列表数据</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> totalCount  总记录数</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> pageSize    每页记录数</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> currPage    当前页数</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">PageUtils</span><span class="params">(List&lt;?&gt; list, <span class="type">int</span> totalCount, <span class="type">int</span> pageSize, <span class="type">int</span> currPage)</span> &#123;</span><br><span class="line">      <span class="built_in">this</span>.list = list;</span><br><span class="line">      <span class="built_in">this</span>.totalCount = totalCount;</span><br><span class="line">      <span class="built_in">this</span>.pageSize = pageSize;</span><br><span class="line">      <span class="built_in">this</span>.currPage = currPage;</span><br><span class="line">      <span class="built_in">this</span>.totalPage = (<span class="type">int</span>)Math.ceil((<span class="type">double</span>)totalCount/pageSize);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 分页</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">PageUtils</span><span class="params">(IPage&lt;?&gt; page)</span> &#123;</span><br><span class="line">      <span class="built_in">this</span>.list = page.getRecords();</span><br><span class="line">      <span class="built_in">this</span>.totalCount = (<span class="type">int</span>)page.getTotal();</span><br><span class="line">      <span class="built_in">this</span>.pageSize = (<span class="type">int</span>)page.getSize();</span><br><span class="line">      <span class="built_in">this</span>.currPage = (<span class="type">int</span>)page.getCurrent();</span><br><span class="line">      <span class="built_in">this</span>.totalPage = (<span class="type">int</span>)page.getPages();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+<h4 id="查询三级分类"><a href="#查询三级分类" class="headerlink" title="查询三级分类"></a>查询三级分类</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回查询所有分类以及子子分类，以树形结构组装起来    </span></span><br><span class="line">List&lt;CategoryEntity&gt; <span class="title function_">listWithTree</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> List&lt;CategoryEntity&gt; <span class="title function_">listWithTree</span><span class="params">()</span> &#123;</span><br><span class="line">      <span class="comment">// 1、查出所有分类 设置为null查询全部</span></span><br><span class="line">      List&lt;CategoryEntity&gt; entities = baseMapper.selectList(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 2、组装成父子的树形结构</span></span><br><span class="line">      List&lt;CategoryEntity&gt; levelList = entities.stream().filter(categoryEntity -&gt; &#123;</span><br><span class="line">          <span class="comment">// parentCid ==0 为父目录默认0</span></span><br><span class="line">          <span class="keyword">return</span> categoryEntity.getParentCid() == <span class="number">0</span>;</span><br><span class="line">      &#125;).map(menu -&gt; &#123;</span><br><span class="line">          <span class="comment">// 设置二三级分类 递归</span></span><br><span class="line">          menu.setChildren(getChildrens(menu,entities));</span><br><span class="line">          <span class="keyword">return</span> menu;</span><br><span class="line">      &#125;).sorted((menu1, menu2) -&gt; &#123;</span><br><span class="line">          <span class="comment">//  排序 Sort字段排序</span></span><br><span class="line">          <span class="keyword">return</span> (menu1.getSort() == <span class="literal">null</span> ? <span class="number">0</span> : menu1.getSort()) - (menu2.getSort() == <span class="literal">null</span> ? <span class="number">0</span> : menu2.getSort());</span><br><span class="line">      &#125;).collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> levelList;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   *  递归查询子分类</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> root 当前category对象</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> all  全部分类数据</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">private</span> List&lt;CategoryEntity&gt; <span class="title function_">getChildrens</span><span class="params">(CategoryEntity root, List&lt;CategoryEntity&gt; all)</span> &#123;</span><br><span class="line"></span><br><span class="line">      List&lt;CategoryEntity&gt; collect = all.stream().filter(categoryEntity -&gt; &#123;</span><br><span class="line">          <span class="comment">// 遍历所有的category对象的父类id = 等于root的分类id 说明是他的子类</span></span><br><span class="line">          <span class="keyword">return</span> categoryEntity.getParentCid() == root.getCatId();</span><br><span class="line">      &#125;).map(menu -&gt; &#123;</span><br><span class="line">          <span class="comment">// 1、递归遍历菜单</span></span><br><span class="line">          menu.setChildren(getChildrens(menu, all));</span><br><span class="line">          <span class="keyword">return</span> menu;</span><br><span class="line">      &#125;).sorted((menu1, menu2) -&gt; &#123;</span><br><span class="line">          <span class="comment">// 2、菜单排序</span></span><br><span class="line">          <span class="keyword">return</span> (menu1.getSort() == <span class="literal">null</span> ? <span class="number">0</span> : menu1.getSort()) - (menu2.getSort() == <span class="literal">null</span> ? <span class="number">0</span> : menu2.getSort());</span><br><span class="line">      &#125;).collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> collect;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="分类修改-回显级联选择器"><a href="#分类修改-回显级联选择器" class="headerlink" title="分类修改 &amp; 回显级联选择器"></a>分类修改 &amp; 回显级联选择器</h4><p>通过一个路径找他的原始路径</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Long[] findCatelogPath(Long catelogId) &#123;</span><br><span class="line"></span><br><span class="line">    ArrayList&lt;Long&gt; paths = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    ArrayList&lt;Long&gt; pathParents = findParentPath(catelogId, paths);</span><br><span class="line">    Collections.reverse(pathParents);</span><br><span class="line">    <span class="keyword">return</span> (Long[]) pathParents.toArray(<span class="keyword">new</span> <span class="title class_">Long</span>[pathParents.size()]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> ArrayList&lt;Long&gt; <span class="title function_">findParentPath</span><span class="params">(Long catelogId, ArrayList&lt;Long&gt; paths)</span> &#123;</span><br><span class="line">    paths.add(catelogId);</span><br><span class="line">    <span class="type">CategoryEntity</span> <span class="variable">byId</span> <span class="operator">=</span> <span class="built_in">this</span>.getById(catelogId);</span><br><span class="line">    <span class="keyword">if</span> (byId.getParentCid() != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="type">Long</span> <span class="variable">parentCid</span> <span class="operator">=</span> byId.getParentCid();</span><br><span class="line">        findParentPath(parentCid, paths);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> paths;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>一对多查询</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_checkitem</span><br><span class="line">   <span class="keyword">where</span> id</span><br><span class="line">  <span class="keyword">in</span> (<span class="keyword">select</span> checkitem_id <span class="keyword">from</span> t_checkgroup_checkitem <span class="keyword">where</span> checkgroup_id<span class="operator">=</span>#&#123;id&#125;)</span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2020/09/07/Java/MbatisPlus/mybatisplus/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MybatisPlus/" rel="tag">MybatisPlus</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/10/06/Java/%E8%B7%A8%E5%9F%9F/%E8%B7%A8%E5%9F%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            跨域的解决
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/09/07/Java/MbatisPlus/mybatis/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">mybatis使用笔记</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

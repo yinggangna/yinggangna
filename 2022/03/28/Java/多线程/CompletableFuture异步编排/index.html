@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    异步编排 |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/多线程/CompletableFuture异步编排"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  异步编排
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/03/28/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/" class="article-date">
+  <time datetime="2022-03-28T10:13:25.000Z" itemprop="datePublished">2022-03-28</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">10 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="异步编排"><a href="#异步编排" class="headerlink" title="异步编排"></a>异步编排</h1><p>所谓异步 就是new几个其他线程 与主线程同时做任务 分活给其他人一起干</p>
+<p>（）-{</p>
+<p>​	} 大括号以内就是要干的活</p>
+<p>业务场景：</p>
+<p>查询商品详情页逻辑比较复杂，有些数据还需要远程调用，必然需要花费更多的时间</p>
+<p>基本信息<br>图片信息<br>促销信息<br>销售属性<br>规格参数</p>
+<p>等</p>
+<p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201105163535757.png" alt="image-20201105163535757"></p>
+<p>那么，用户需要5.5s后才能看到商品相详情页的内容，很显然是不能接受的</p>
+<p>如果有多个线程同时完成这 6 步操作，也许只需要 1.5s 即可完成响应</p>
+<h2 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h2><p>第一种</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">contextLoads</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="comment">//员工数量</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">5</span>;</span><br><span class="line">    <span class="comment">//创建计数器</span></span><br><span class="line">    <span class="comment">//构造参数传入的数量值代表的是latch.countDown()调用的次数</span></span><br><span class="line">    <span class="type">CountDownLatch</span> <span class="variable">latch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CountDownLatch</span>(count);</span><br><span class="line">    System.out.println(<span class="string">&quot;核心线程数&quot;</span>+count);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建线程池，可以通过以下方式创建</span></span><br><span class="line">    <span class="comment">//ThreadPoolExecutor threadPool = new ThreadPoolExecutor(1,1,60,TimeUnit.SECONDS,new LinkedBlockingQueue&lt;Runnable&gt;(count));</span></span><br><span class="line">    <span class="comment">//ExecutorService threadPool =  Executors.newFixedThreadPool(count);</span></span><br><span class="line">    <span class="type">ExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> ThreadPoolFactory.createFixedThreadPool(<span class="string">&quot;集合&quot;</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;公司发送通知，每一位员工在周六早上8点到公司大门口集合&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        threadPool.execute(<span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;员工：&quot;</span> + Thread.currentThread() + <span class="string">&quot;，正在前往公司大门口集合...&quot;</span>);</span><br><span class="line">                Thread.sleep(<span class="number">10</span>);</span><br><span class="line">                System.out.println(<span class="string">&quot;员工：&quot;</span> + Thread.currentThread() + <span class="string">&quot;，已到达。&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="comment">//当前计算工作已结束，计数器减一</span></span><br><span class="line">                latch.countDown();</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i1</span> <span class="operator">=</span> <span class="number">0</span>; i1 &lt; <span class="number">100000</span>; i1++) &#123;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">&quot;员工：&quot;</span> + Thread.currentThread() + <span class="string">&quot;，吃饭、喝水、拍照。&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        ));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//阻塞当前线程，直到所有员工到达公司大门口之后才执行</span></span><br><span class="line">    latch.await();</span><br><span class="line">    <span class="comment">// 使当前线程在锁存器倒计数至零之前一直等待，除非线程被中断或超出了指定的等待时间。</span></span><br><span class="line">    <span class="comment">//latch.await(long timeout, TimeUnit unit)</span></span><br><span class="line">    System.out.println(<span class="string">&quot;所有员工已经到达公司大门口，大巴车发动，前往活动目的地。&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//最后关闭线程池，但执行以前提交的任务，不接受新任务</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//关闭线程池，停止所有正在执行的活动任务，暂停处理正在等待的任务，并返回等待执行的任务列表。</span></span><br><span class="line">    <span class="comment">//threadPool.shutdownNow();</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h2 id="CompletableFuture"><a href="#CompletableFuture" class="headerlink" title="CompletableFuture"></a>CompletableFuture</h2><h3 id="创建异步对象"><a href="#创建异步对象" class="headerlink" title="创建异步对象"></a>创建异步对象</h3><p>CompletableFuture 提供了四个静态方法来创建一个异步操作</p>
+<p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201105185420349.png" alt="image-20201105185420349"></p>
+<p>1、<strong>runXxx 都是没有返回结果的，supplyXxxx都是可以获取返回结果的</strong></p>
+<p>2、可以传入<strong>自定义的线程池</strong>，否则就是用默认的线程池</p>
+<p>3、根据方法的返回类型来判断是否该方法<strong>是否有返回类型</strong></p>
+<p>代码实现：</p>
+<h5 id="无返回-runAsync"><a href="#无返回-runAsync" class="headerlink" title="无返回   runAsync"></a><strong>无返回</strong>   runAsync</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;Void&gt; completableFuture = CompletableFuture.runAsync(() -&gt; 		&#123;</span><br><span class="line">         System.out.println(<span class="string">&quot;当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">         <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">2</span>;</span><br><span class="line">         System.out.println(<span class="string">&quot;运行结果：&quot;</span> + i);</span><br><span class="line">     &#125;, executorService);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h5 id="有返回-supplyAsync"><a href="#有返回-supplyAsync" class="headerlink" title="有返回   supplyAsync"></a><strong>有返回</strong>   supplyAsync</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;Integer&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">            <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">2</span>;</span><br><span class="line">            System.out.println(<span class="string">&quot;运行结果：&quot;</span> + i);</span><br><span class="line">            <span class="keyword">return</span> i;</span><br><span class="line">        &#125;, executorService);</span><br><span class="line">        <span class="type">Integer</span> <span class="variable">integer</span> <span class="operator">=</span> future.get();</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="计算完成时"><a href="#计算完成时" class="headerlink" title="计算完成时"></a>计算完成时</h3><h4 id="回调方法whenComplete"><a href="#回调方法whenComplete" class="headerlink" title="回调方法whenComplete"></a>回调方法whenComplete</h4><p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201105185821263.png" alt="image-20201105185821263"></p>
+<p>，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;Integer&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">0</span>;</span><br><span class="line">    System.out.println(<span class="string">&quot;运行结果：&quot;</span> + i);</span><br><span class="line">    <span class="keyword">return</span> i;</span><br><span class="line">&#125;, executor).whenComplete((result,exception) -&gt;&#123;</span><br><span class="line">    <span class="comment">// 虽然能得到异常信息，但是没法修改返回的数据</span></span><br><span class="line">    System.out.println(<span class="string">&quot;异步任务成功完成了...结果是：&quot;</span> +result + <span class="string">&quot;异常是：&quot;</span> + exception);</span><br><span class="line">&#125;).exceptionally(throwable -&gt; &#123;</span><br><span class="line">    <span class="comment">// 可以感知到异常，同时返回默认值</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">10</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>whenComplete 可以处理正常和异常的计算结果</p>
+</blockquote>
+<blockquote>
+<p>exceptionally 处理异常情况</p>
+</blockquote>
+<p><strong>whenComplete 和 whenCompleteAsync 的区别</strong></p>
+<p>​		whenComplete ：<strong>是执行当前任务的线程继续执行 whencomplete 的任务</strong></p>
+<p>​		whenCompleteAsync： 是执行把 whenCompleteAsync 这个任务继续<strong>提交给线程池</strong>来进行执行</p>
+<p>方法<strong>不以 Async 结尾</strong>，意味着 Action 使用<strong>相同的线程执行</strong>，而 Async结尾 <strong>可能会使用其他线程</strong>执行（如果是使用相同的线程池，也可能会被同一个线程选中执行）</p>
+<h4 id="处理异常-方法-handle"><a href="#处理异常-方法-handle" class="headerlink" title="处理异常 方法  handle"></a>处理异常 方法  handle</h4><p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201105194503175.png" alt="image-20201105194503175"></p>
+<p>和 complete 一样，可以<strong>对结果做最后的处理（可处理异常）</strong>，可改变返回值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;Integer&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">2</span>;</span><br><span class="line">    System.out.println(<span class="string">&quot;运行结果：&quot;</span> + i);</span><br><span class="line">    <span class="keyword">return</span> i;</span><br><span class="line">&#125;, executor).handle((res,thr) -&gt;&#123;</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="literal">null</span> ) &#123;</span><br><span class="line">        <span class="keyword">return</span> res * <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (thr != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="串行方法thenxxxAsync"><a href="#串行方法thenxxxAsync" class="headerlink" title="串行方法thenxxxAsync"></a>串行方法thenxxxAsync</h4><p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201105195632819.png" alt="image-20201105195632819"></p>
+<p>thenApply 方法：<strong>当一个线程依赖另一个线程时，获取上一个任务返回的结果，并返回当前任物的返回值</strong></p>
+<p>thenAccept方法：<strong>消费处理结果，接受任务处理结果，并消费处理，无返回结果</strong></p>
+<p>thenRun 方法：<strong>只要上面任务执行完成，就开始执行 thenRun ,只是处理完任务后，执行 thenRun的后续操作</strong></p>
+<p>带有 <strong>Async 默认是异步执行</strong>的，同之前，</p>
+<p>以上都要前置任务完成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">      * 线程串行化，</span></span><br><span class="line"><span class="comment">      * 1、thenRun:不能获取到上一步的执行结果，无返回值</span></span><br><span class="line"><span class="comment">      * .thenRunAsync(() -&gt;&#123;</span></span><br><span class="line"><span class="comment">      *             System.out.println(&quot;任务2启动了....&quot;);</span></span><br><span class="line"><span class="comment">      *         &#125;,executor);</span></span><br><span class="line"><span class="comment">      * 2、能接受上一步结果，但是无返回值 thenAcceptAsync</span></span><br><span class="line"><span class="comment">      * 3、thenApplyAsync 能收受上一步结果，有返回值</span></span><br><span class="line"><span class="comment">      *</span></span><br><span class="line"><span class="comment">      */</span></span><br><span class="line">     CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">         System.out.println(<span class="string">&quot;当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">         <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">2</span>;</span><br><span class="line">         System.out.println(<span class="string">&quot;运行结果：&quot;</span> + i);</span><br><span class="line">         <span class="keyword">return</span> i;</span><br><span class="line">     &#125;, executor).thenApplyAsync(res -&gt; &#123;</span><br><span class="line">         System.out.println(<span class="string">&quot;任务2启动了...&quot;</span> + res);</span><br><span class="line">         <span class="keyword">return</span> <span class="string">&quot;Hello &quot;</span> + res;</span><br><span class="line">     &#125;, executor);</span><br><span class="line">     <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> future.get();</span><br><span class="line"></span><br><span class="line">     System.out.println(<span class="string">&quot;main....stop.....&quot;</span> + s);</span><br></pre></td></tr></table></figure>
+
+<h3 id="任务组合"><a href="#任务组合" class="headerlink" title="任务组合"></a>任务组合</h3><h4 id="都要完成"><a href="#都要完成" class="headerlink" title="都要完成"></a>都要完成</h4><p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20210102044028142.png" alt="image-20210102044028142"></p>
+<p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20210102044044914.png" alt="image-20210102044044914"></p>
+<p>两个任务必须都完成，触发该任务</p>
+<p>thenCombine: 组合两个 future，获取两个 future的返回结果，并返回当前任务的返回值</p>
+<p>thenAccpetBoth: 组合两个 future，获取两个 future 任务的返回结果，然后处理任务，没有返回值</p>
+<p>runAfterBoth:组合 两个 future，不需要获取 future 的结果，只需要两个 future处理完成任务后，处理该任务，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 两个都完成</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        CompletableFuture&lt;Integer&gt; future01 = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;任务1当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">            <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">4</span>;</span><br><span class="line">            System.out.println(<span class="string">&quot;任务1结束：&quot;</span> + i);</span><br><span class="line">            <span class="keyword">return</span> i;</span><br><span class="line">        &#125;, executor);</span><br><span class="line"></span><br><span class="line">        CompletableFuture&lt;String&gt; future02 = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;任务2当前线程：&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">            System.out.println(<span class="string">&quot;任务2结束：&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">        &#125;, executor);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// f1 和 f2 执行完成后在执行这个</span></span><br><span class="line"><span class="comment">//        future01.runAfterBothAsync(future02,() -&gt; &#123;</span></span><br><span class="line"><span class="comment">//            System.out.println(&quot;任务3开始&quot;);</span></span><br><span class="line"><span class="comment">//        &#125;,executor);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 返回f1 和 f2 的运行结果</span></span><br><span class="line"><span class="comment">//        future01.thenAcceptBothAsync(future02,(f1,f2) -&gt; &#123;</span></span><br><span class="line"><span class="comment">//            System.out.println(&quot;任务3开始....之前的结果:&quot; + f1 + &quot;==&gt;&quot; + f2);</span></span><br><span class="line"><span class="comment">//        &#125;,executor);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// f1 和 f2 单独定义返回结果</span></span><br><span class="line">        CompletableFuture&lt;String&gt; future = future01.thenCombineAsync(future02, (f1, f2) -&gt; &#123;</span><br><span class="line">            <span class="keyword">return</span> f1 + <span class="string">&quot;:&quot;</span> + f2 + <span class="string">&quot;-&gt; Haha&quot;</span>;</span><br><span class="line">        &#125;, executor);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;main....end.....&quot;</span> + future.get());</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="一个完成"><a href="#一个完成" class="headerlink" title="一个完成"></a>一个完成</h4><p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201106101904880.png" alt="image-20201106101904880"></p>
+<p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201106101918013.png" alt="image-20201106101918013"></p>
+<p>当两个任务中，任意一个future 任务完成时，执行任务</p>
+<p><strong>applyToEither</strong>;两个任务有一个执行完成，获取它的返回值，处理任务并有新的返回值</p>
+<p><strong>acceptEither</strong>: 两个任务有一个执行完成，获取它的返回值，处理任务，没有新的返回值</p>
+<p><strong>runAfterEither</strong>:两个任务有一个执行完成，不需要获取 future 的结果，处理任务，也没有返回值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 两个任务，只要有一个完成，我们就执行任务</span></span><br><span class="line"><span class="comment">         * runAfterEnitherAsync：不感知结果，自己没有返回值</span></span><br><span class="line"><span class="comment">         * acceptEitherAsync：感知结果，自己没有返回值</span></span><br><span class="line"><span class="comment">         *  applyToEitherAsync：感知结果，自己有返回值</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line"><span class="comment">//        future01.runAfterEitherAsync(future02,() -&gt;&#123;</span></span><br><span class="line"><span class="comment">//            System.out.println(&quot;任务3开始...之前的结果:&quot;);</span></span><br><span class="line"><span class="comment">//        &#125;,executor);</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//        future01.acceptEitherAsync(future02,(res) -&gt; &#123;</span></span><br><span class="line"><span class="comment">//            System.out.println(&quot;任务3开始...之前的结果:&quot; + res);</span></span><br><span class="line"><span class="comment">//        &#125;,executor);</span></span><br><span class="line"></span><br><span class="line">        CompletableFuture&lt;String&gt; future = future01.applyToEitherAsync(future02, res -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;任务3开始...之前的结果：&quot;</span> + res);</span><br><span class="line">            <span class="keyword">return</span> res.toString() + <span class="string">&quot;-&gt;哈哈&quot;</span>;</span><br><span class="line">        &#125;, executor);</span><br></pre></td></tr></table></figure>
+
+<h3 id="多任务组合"><a href="#多任务组合" class="headerlink" title="多任务组合"></a>多任务组合</h3><p><img src="/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/image-20201106104031315.png" alt="image-20201106104031315"></p>
+<p>allOf：<strong>等待所有任务完成</strong></p>
+<p>anyOf:<strong>只要有一个任务完成</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">        CompletableFuture&lt;String&gt; futureImg = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;查询商品的图片信息&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;hello.jpg&quot;</span>;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        CompletableFuture&lt;String&gt; futureAttr = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;查询商品的属性&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;黑色+256G&quot;</span>;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        CompletableFuture&lt;String&gt; futureDesc = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="number">3</span>); &#125; <span class="keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;查询商品介绍&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;华为&quot;</span>;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 等待全部执行完</span></span><br><span class="line"><span class="comment">//        CompletableFuture&lt;Void&gt; allOf = CompletableFuture.allOf(futureImg, futureAttr, futureDesc);</span></span><br><span class="line"><span class="comment">//        allOf.get();</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 只需要有一个执行完</span></span><br><span class="line">        CompletableFuture&lt;Object&gt; anyOf = CompletableFuture.anyOf(futureImg, futureAttr, futureDesc);</span><br><span class="line">        anyOf.get();</span><br><span class="line">        System.out.println(<span class="string">&quot;main....end.....&quot;</span> + anyOf.get());</span><br></pre></td></tr></table></figure>
+
+<p>都是操作 CompletableFuture 类 更多方法还请参考该类</p>
+<h4 id="测试及使用多任务组合"><a href="#测试及使用多任务组合" class="headerlink" title="测试及使用多任务组合"></a>测试及使用多任务组合</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> SkuItemVo <span class="title function_">item</span><span class="params">(Long skuId)</span> &#123;</span><br><span class="line">        <span class="type">SkuItemVo</span> <span class="variable">skuItemVo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SkuItemVo</span>();</span><br><span class="line">        <span class="comment">//1、sku基本信息获取 pms_sku_info</span></span><br><span class="line">        CompletableFuture&lt;SkuInfoEntity&gt; infoFuture = CompletableFuture.supplyAsync(() -&gt; &#123;</span><br><span class="line">            <span class="type">SkuInfoEntity</span> <span class="variable">info</span> <span class="operator">=</span> getById(skuId);</span><br><span class="line">            skuItemVo.setInfo(info);</span><br><span class="line">            <span class="keyword">return</span> info;</span><br><span class="line">        &#125;, executor);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//3、获取spu的销售属性组合</span></span><br><span class="line">        CompletableFuture&lt;Void&gt; saleAttrFuture = infoFuture.thenAcceptAsync((res) -&gt; &#123;</span><br><span class="line">            List&lt;SkuItemSaleAttrVo&gt; saleAttrVos = skuSaleAttrValueService.getSaleAttrsBySpuId(res.getSpuId());</span><br><span class="line">            skuItemVo.setSaleAttr(saleAttrVos);</span><br><span class="line">        &#125;, executor);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//4、获取spu的介绍 pms_spu_info_desc</span></span><br><span class="line">        CompletableFuture&lt;Void&gt; descFuture = infoFuture.thenAcceptAsync(res -&gt; &#123;</span><br><span class="line">            <span class="type">SpuInfoDescEntity</span> <span class="variable">spuInfoDescEntity</span> <span class="operator">=</span> spuInfoDescService.getById(res.getSpuId());</span><br><span class="line">            skuItemVo.setDesp(spuInfoDescEntity);</span><br><span class="line">        &#125;, executor);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//5、获取spu的规格参数信息</span></span><br><span class="line">        CompletableFuture&lt;Void&gt; attrGroupFuture = infoFuture.thenAcceptAsync(res -&gt; &#123;</span><br><span class="line">            List&lt;SpuItemAttrGroupVo&gt; attrGroupVos = attrGroupService.getAttrGroupWithAttrsBySpuId(res.getSpuId(), res.getCatalogId());</span><br><span class="line">            skuItemVo.setGroupAttrs(attrGroupVos);</span><br><span class="line">        &#125;, executor);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//2、sku图片信息    pms_sku_images</span></span><br><span class="line">        CompletableFuture&lt;Void&gt; imgFuture = CompletableFuture.runAsync(() -&gt; &#123;</span><br><span class="line">            List&lt;SkuImagesEntity&gt; skuImagesEntityList = imagesService.getImagesBySkuId(skuId);</span><br><span class="line">            skuItemVo.setImages(skuImagesEntityList);</span><br><span class="line">        &#125;, executor);</span><br><span class="line"></span><br><span class="line">        CompletableFuture&lt;Void&gt; seckillFuture = CompletableFuture.runAsync(() -&gt; &#123;</span><br><span class="line">            <span class="comment">//3、远程调用查询当前sku是否参与秒杀优惠活动</span></span><br><span class="line">            <span class="type">R</span> <span class="variable">skuSeckilInfo</span> <span class="operator">=</span> seckillFeignService.getSkuSeckilInfo(skuId);</span><br><span class="line">            <span class="keyword">if</span> (skuSeckilInfo.getCode() == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">//查询成功</span></span><br><span class="line">                <span class="type">SeckillSkuVo</span> <span class="variable">seckilInfoData</span> <span class="operator">=</span> skuSeckilInfo.getData(<span class="string">&quot;data&quot;</span>, <span class="keyword">new</span> <span class="title class_">TypeReference</span>&lt;SeckillSkuVo&gt;() &#123;</span><br><span class="line">                &#125;);</span><br><span class="line">                skuItemVo.setSeckillSkuVo(seckilInfoData);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (seckilInfoData != <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="type">long</span> <span class="variable">currentTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">                    <span class="keyword">if</span> (currentTime &gt; seckilInfoData.getEndTime()) &#123;</span><br><span class="line">                        skuItemVo.setSeckillSkuVo(<span class="literal">null</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, executor);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//等待所有任务都完成</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            CompletableFuture.allOf(saleAttrFuture,descFuture,attrGroupFuture,imgFuture).get();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> skuItemVo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2022/03/28/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/CompletableFuture%E5%BC%82%E6%AD%A5%E7%BC%96%E6%8E%92/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/04/14/Java/JWT/JWT/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JWT
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/03/19/Java/%E6%B5%8F%E8%A7%88%E5%99%A8/%E6%B2%B9%E7%8C%B4%E8%84%9A%E6%9C%AC/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">油猴脚本</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

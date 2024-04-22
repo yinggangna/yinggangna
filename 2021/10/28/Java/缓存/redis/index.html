@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    redis |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/缓存/redis"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  redis
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/10/28/Java/%E7%BC%93%E5%AD%98/redis/" class="article-date">
+  <time datetime="2021-10-28T14:55:02.000Z" itemprop="datePublished">2021-10-28</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%93%E5%AD%98/">缓存</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">3.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">17 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="redis"><a href="#redis" class="headerlink" title="redis"></a>redis</h1><h3 id="前置条件开放自定义端口6376"><a href="#前置条件开放自定义端口6376" class="headerlink" title="前置条件开放自定义端口6376"></a>前置条件开放自定义端口6376</h3><p>vi &#x2F;etc&#x2F;sysconfig&#x2F;iptables<br>-A INPUT -p tcp -m state –state NEW -m tcp –dport 6376 -j ACCEPT<br>service iptables restart</p>
+<h3 id="redis安装"><a href="#redis安装" class="headerlink" title="redis安装"></a>redis安装</h3><p>1、拉取redis 6.2.6版本的镜像<br>docker pull redis:6.2.6<br>2、创建数据目录和配置目录<br>mkdir -p &#x2F;mydata&#x2F;redis&#x2F;conf &#x2F;mydata&#x2F;redis&#x2F;data<br>chmod -R 755 &#x2F;mydata&#x2F;redis<br>3、在&#x2F;mydata&#x2F;redis&#x2F;conf下创建自定义的配置文件redis.conf</p>
+<p>vim &#x2F;mydata&#x2F;redis&#x2F;conf&#x2F;redis.conf</p>
+<p>redis.con内容如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#bind 127.0.0.1 设置允许远程连接</span></span><br><span class="line"><span class="keyword">protected</span>-mode no </span><br><span class="line"><span class="meta">#最大连接数</span></span><br><span class="line">maxclients <span class="number">100000</span></span><br><span class="line"><span class="meta">#最大内存</span></span><br><span class="line">maxmemory <span class="number">5</span>G</span><br><span class="line"><span class="meta">#密码</span></span><br><span class="line">requirepass root</span><br></pre></td></tr></table></figure>
+
+<p>4、启动创建容器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 6376:6379 --name redis -v /mydata/redis/data:/data -v /mydata/redis/conf:/usr/local/etc/redis -v /etc/localtime:/etc/localtime:ro -d redis:6.2.6 redis-server /usr/local/etc/redis/redis.conf --save 60 1</span><br></pre></td></tr></table></figure>
+
+
+
+<p>5、查看容器创建的情况<br>docker ps -a<br>docker exec -it redis &#x2F;bin&#x2F;bash<br>date</p>
+<h3 id="redis的使用"><a href="#redis的使用" class="headerlink" title="redis的使用"></a>redis的使用</h3><h4 id="1-导入依赖"><a href="#1-导入依赖" class="headerlink" title="1. 导入依赖"></a>1. 导入依赖</h4><p>Springboot 项目中Redis用lettuce连接池，如果长时间不用redis的话，就会断连。</p>
+<p>springboot2.0以后默认使用lettuce作为操作redis的客户端，它使用netty进行通信。 lettuce的bug就是高并发导致netty堆对外内存溢出 -Xmx300m; netty如果没有指定对外内存，默认使用的就是300m。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lettuce-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.lettuce<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- jedis客户端 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- spring2.X集成redis所需common-pool2，使用jedis必须依赖它--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.commons<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-pool2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>lettuce 的bug导致netty堆外内存溢出， netty 如果没有指定堆内存移除   默认使用 -Xmx300m</p>
+<p>1、升级 lettuce客户端，2、 切换使用jedis</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * TODO 产生堆外内存溢出 OutOfDirectMemoryError</span></span><br><span class="line"><span class="comment"> * 1、SpringBoot2.0以后默认使用 Lettuce作为操作redis的客户端，它使用 netty进行网络通信</span></span><br><span class="line"><span class="comment"> * 2、lettuce 的bug导致netty堆外内存溢出，-Xmx300m netty 如果没有指定堆内存移除，</span></span><br><span class="line"><span class="comment"> *      可以通过-Dio.netty.maxDirectMemory 进行设置</span></span><br><span class="line"><span class="comment"> *   解决方案 不能使用 -Dio.netty.maxDirectMemory调大内存</span></span><br><span class="line"><span class="comment"> *   1、升级 lettuce客户端，2、 切换使用jedis</span></span><br><span class="line"><span class="comment"> *   redisTemplate:</span></span><br><span class="line"><span class="comment"> *   lettuce、jedis 操作redis的底层客户端，Spring再次封装</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="2-application-yaml"><a href="#2-application-yaml" class="headerlink" title="2. application.yaml"></a>2. application.yaml</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Spring:</span></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.56</span><span class="number">.10</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">6379</span></span><br><span class="line">    <span class="attr">password:</span></span><br></pre></td></tr></table></figure>
+
+<p>RedisAutoConfig.java</p>
+<p><img src="/redis/image-20201031154710108.png" alt="image-20201031154710108"></p>
+<h4 id="3-测试redis是否可用"><a href="#3-测试redis是否可用" class="headerlink" title="3. 测试redis是否可用"></a>3. 测试redis是否可用</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line">StringRedisTemplate stringRedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testStringRedisTemplate</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">    stringRedisTemplate.opsForValue().set(<span class="string">&quot;hello&quot;</span>,<span class="string">&quot;world_&quot;</span> + UUID.randomUUID().toString());</span><br><span class="line">    <span class="type">String</span> <span class="variable">hello</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;之前保存的数据是：&quot;</span> + hello);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-优化三级分类数据获取"><a href="#4-优化三级分类数据获取" class="headerlink" title="4. 优化三级分类数据获取"></a>4. 优化三级分类数据获取</h4><p>给缓存中放 json 字符串、拿出的是 json 字符串</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Map&lt;String, List&lt;Catelog2Vo&gt;&gt; <span class="title function_">getCatelogJson</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 给缓存中放 json 字符串、拿出的是 json 字符串，还要逆转为能用的对象类型【序列化和反序列化】</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1、加入缓存逻辑，缓存中放的数据是 json 字符串</span></span><br><span class="line">    <span class="comment">// JSON 跨语言，跨平台兼容</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">catelogJSON</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;catelogJSON&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.isEmpty(catelogJSON)) &#123;</span><br><span class="line">        <span class="comment">// 2、缓存没有，从数据库中查询</span></span><br><span class="line">        Map&lt;String, List&lt;Catelog2Vo&gt;&gt; catelogJsonFromDb = getCatelogJsonFromDb();</span><br><span class="line">        <span class="comment">// 3、查询到数据，将数据转成 JSON 后放入缓存中</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(catelogJsonFromDb);</span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">&quot;catelogJSON&quot;</span>,s);</span><br><span class="line">        <span class="keyword">return</span> catelogJsonFromDb;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 转换为我们指定的对象</span></span><br><span class="line">    Map&lt;String, List&lt;Catelog2Vo&gt;&gt; result = JSON.parseObject(catelogJSON, <span class="keyword">new</span> <span class="title class_">TypeReference</span>&lt;Map&lt;String, List&lt;Catelog2Vo&gt;&gt;&gt;() &#123;&#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="5-解决雪崩问题-添加过期时间"><a href="#5-解决雪崩问题-添加过期时间" class="headerlink" title="5. 解决雪崩问题,添加过期时间"></a>5. 解决雪崩问题,添加过期时间</h4><p>设置过期时间 解决<strong>雪崩</strong>问题</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ops.set(<span class="string">&quot;getCatalogJsonFromDB&quot;</span>,s,<span class="number">1</span>, TimeUnit.DAYS);</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="6-加锁（本地锁）"><a href="#6-加锁（本地锁）" class="headerlink" title="6.加锁（本地锁）"></a>6.加锁（本地锁）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span>(<span class="built_in">this</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//1. 再次查询是否有数据</span></span><br><span class="line"><span class="type">String</span> <span class="variable">catelogJSON</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;catelogJSON&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (!StringUtils.isEmpty(catelogJSON)) &#123;</span><br><span class="line">			  <span class="comment">// 转换为我们指定的对象</span></span><br><span class="line">    		Map&lt;String, List&lt;Catelog2Vo&gt;&gt; result = JSON.parseObject(catelogJSON, <span class="keyword">new</span> <span class="title class_">TypeReference</span>&lt;Map&lt;String, List&lt;Catelog2Vo&gt;&gt;&gt;() &#123;&#125;);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">        		</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//2. 查询数据库逻辑</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 修改为 这个操作：查询到数据，将数据转成 JSON 后放入缓存中  “在锁里面”</span></span><br><span class="line">    <span class="comment">//  将查询数据库 放入缓存的操作 是原子性的操作 在锁中 保证只查询一次数据库</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(catelogJsonFromDb);</span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">&quot;catelogJSON&quot;</span>,s);</span><br><span class="line">        <span class="keyword">return</span> catelogJsonFromDb;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>这样加本地锁不对的 只能是一台服务器 只能锁住当前线程 看下面加分布式锁</p>
+<h3 id="缓存穿透："><a href="#缓存穿透：" class="headerlink" title="缓存穿透："></a>缓存穿透：</h3><p>大量不存在的数据进行攻击 缓存是不命中，将去查询数据库  数据库压力增大 导致崩溃</p>
+<h4 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h4><p>布隆过滤器</p>
+<h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><p>缓存雪崩是指在我们设置缓存时<strong>key采用了相同的过期时间</strong>,导致缓存在某- -时刻同时失效，请求全部转发到DB, DB瞬时压力过重雪崩。</p>
+<h4 id="解决："><a href="#解决：" class="headerlink" title="解决："></a>解决：</h4><p>原有的失效时间基础上增加一个随机值，</p>
+<h3 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h3><p>热点key失效</p>
+<h4 id="解决：-1"><a href="#解决：-1" class="headerlink" title="解决："></a>解决：</h4><p>1.设置成永久key</p>
+<p>2.加锁</p>
+<h4 id="加锁方式一"><a href="#加锁方式一" class="headerlink" title="加锁方式一"></a>加锁方式一</h4><p>方式一  public synchronized  xxx(){</p>
+<p>}		方法加锁</p>
+<p>方式二  synchronized(this) {</p>
+<p>​	再次查询缓存是否有数据</p>
+<p>}   代码块加锁</p>
+<p>springboot所有组件 在容器中都是单例的</p>
+<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><h4 id="分布式锁原理与应用"><a href="#分布式锁原理与应用" class="headerlink" title="分布式锁原理与应用"></a>分布式锁原理与应用</h4><h5 id="分布式锁基本原理"><a href="#分布式锁基本原理" class="headerlink" title="分布式锁基本原理"></a>分布式锁基本原理</h5><p><strong>理解：</strong>就先当1000个人去占一个厕所（setIfAbsent（key,value）），厕所只能有一个人占到这个坑，占到这个坑其他人就只能在外面等待，等待一段时间后可以再次来占坑(调用此方法)，业务执行后，释放锁(delete(key))，那么其他人就可以来占这个坑</p>
+<p>setNx  原子性 没有就放数据</p>
+<p>setEx  设置过期时间 </p>
+<h5 id="分布式锁演进-阶段一-没有设置锁的过期时间"><a href="#分布式锁演进-阶段一-没有设置锁的过期时间" class="headerlink" title="分布式锁演进 - 阶段一   没有设置锁的过期时间"></a>分布式锁演进 - 阶段一   没有设置锁的过期时间</h5><p><strong>问题</strong>:<br>    1、setnx占好 了位,<strong>业务代码异常</strong>或者程序在页面过程中<strong>宕机</strong>。</p>
+<p>​		<strong>没有删除锁</strong>，这就造成了死锁.</p>
+<p><strong>解决</strong>:</p>
+<p>setEx 设置锁的过期时间，即使没有删除，会自动删除</p>
+<p>setIfAbsent   : setNx  </p>
+<p><strong>代码：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="分布式锁演进-阶段二"><a href="#分布式锁演进-阶段二" class="headerlink" title="分布式锁演进 - 阶段二"></a>分布式锁演进 - 阶段二</h5><p><img src="/redis/image-20201031123640746.png" alt="image-20201031123640746"></p>
+<p><strong>代码：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="number">1.</span> 加锁  setNx 没有就放数据</span><br><span class="line"><span class="type">Boolean</span> <span class="variable">lock</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(<span class="string">&quot;lock&quot;</span>, <span class="string">&quot;0&quot;</span>);</span><br><span class="line">       </span><br><span class="line"><span class="keyword">if</span> (lock) &#123;</span><br><span class="line">            <span class="comment">// 加锁成功..执行业务</span></span><br><span class="line">            Map&lt;String,List&lt;Catelog2Vo&gt;&gt; dataFromDb = getDataFromDB();</span><br><span class="line">            redisTemplate.delete(<span class="string">&quot;lock&quot;</span>); <span class="comment">// 删除锁</span></span><br><span class="line">            <span class="keyword">return</span> dataFromDb;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 加锁失败，重试 synchronized()</span></span><br><span class="line">            <span class="comment">// 休眠100ms重试</span></span><br><span class="line">            <span class="keyword">return</span> getCatelogJsonFromDbWithRedisLock();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">问题：业务代码异常或者程序在页面过程中宕机。</span></span><br><span class="line"><span class="comment">没有删除锁，这就造成了死锁.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="number">2.</span>设置过期时间  </span><br><span class="line"><span class="type">Boolean</span> <span class="variable">lock</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent()</span><br><span class="line">        <span class="keyword">if</span> (lock) &#123;</span><br><span class="line">            <span class="comment">// 加锁成功..执行业务</span></span><br><span class="line">            <span class="comment">// 设置过期时间</span></span><br><span class="line">            redisTemplate.expire(<span class="string">&quot;lock&quot;</span>,<span class="number">30</span>,TimeUnit.SECONDS);</span><br><span class="line">            Map&lt;String,List&lt;Catelog2Vo&gt;&gt; dataFromDb = getDataFromDB();</span><br><span class="line">            redisTemplate.delete(<span class="string">&quot;lock&quot;</span>); <span class="comment">// 删除锁</span></span><br><span class="line">            <span class="keyword">return</span> dataFromDb;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 加锁失败，重试 synchronized()</span></span><br><span class="line">            <span class="comment">// 休眠100ms重试</span></span><br><span class="line">            <span class="keyword">return</span> getCatelogJsonFromDbWithRedisLock();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">问题：业务代码异常或者程序在页面过程中宕机。</span></span><br><span class="line"><span class="comment">没有到设置过期时间，这就造成了死锁.</span></span><br><span class="line"><span class="comment">设置过期时间和占位必须是原子的。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span>设置值同时设置过期时间   setEx</span><br><span class="line"><span class="type">Boolean</span> <span class="variable">lock</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(<span class="string">&quot;lock&quot;</span>,<span class="string">&quot;111&quot;</span>,<span class="number">300</span>,TimeUnit.SECONDS);</span><br><span class="line"><span class="keyword">if</span> (lock) &#123;</span><br><span class="line">    <span class="comment">// 加锁成功..执行业务</span></span><br><span class="line">    <span class="comment">// 设置过期时间,必须和加锁是同步的，原子的</span></span><br><span class="line">    redisTemplate.expire(<span class="string">&quot;lock&quot;</span>,<span class="number">30</span>,TimeUnit.SECONDS);</span><br><span class="line">    Map&lt;String,List&lt;Catelog2Vo&gt;&gt; dataFromDb = getDataFromDB();</span><br><span class="line">    redisTemplate.delete(<span class="string">&quot;lock&quot;</span>); <span class="comment">// 删除锁</span></span><br><span class="line">    <span class="keyword">return</span> dataFromDb;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 加锁失败，重试 synchronized()</span></span><br><span class="line">    <span class="comment">// 休眠100ms重试</span></span><br><span class="line">    <span class="keyword">return</span> getCatelogJsonFromDbWithRedisLock();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">问题：于业务时间很长，锁自己过期了,删除别人的锁</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="number">4.</span>占锁的时候，值指定为uuid,每个人匹配是自己</span><br><span class="line">的锁才删除。</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">问题：如果正好判断是当前值，正要删除锁的时候,锁经过期,</span></span><br><span class="line"><span class="comment">别人已经设置到了新的值。那么我们删除的是别人的锁</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="number">5.</span>删除锁必须保证原子性。使用redis+Lua脚本完成</span><br><span class="line"></span><br><span class="line"> <span class="type">String</span> <span class="variable">uuid</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line">        <span class="comment">// 设置值同时设置过期时间</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">lock</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(<span class="string">&quot;lock&quot;</span>,uuid,<span class="number">300</span>,TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">if</span> (lock) &#123;</span><br><span class="line">            <span class="comment">// 加锁成功..执行业务</span></span><br><span class="line">            <span class="comment">// 设置过期时间,必须和加锁是同步的，原子的</span></span><br><span class="line"><span class="comment">//            redisTemplate.expire(&quot;lock&quot;,30,TimeUnit.SECONDS);</span></span><br><span class="line">            Map&lt;String,List&lt;Catelog2Vo&gt;&gt; dataFromDb = getDataFromDB();</span><br><span class="line"><span class="comment">//            String lockValue = redisTemplate.opsForValue().get(&quot;lock&quot;);</span></span><br><span class="line"><span class="comment">//            if (lockValue.equals(uuid)) &#123;</span></span><br><span class="line"><span class="comment">//                // 删除我自己的锁</span></span><br><span class="line"><span class="comment">//                redisTemplate.delete(&quot;lock&quot;); // 删除锁</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line"><span class="comment">// 通过使用lua脚本进行原子性删除</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">script</span> <span class="operator">=</span> <span class="string">&quot;if redis.call(&#x27;get&#x27;,KEYS[1]) == ARGV[1] then return redis.call(&#x27;del&#x27;,KEYS[1]) else return 0 end&quot;</span>;</span><br><span class="line">                <span class="comment">//删除锁</span></span><br><span class="line">                <span class="type">Long</span> <span class="variable">lock1</span> <span class="operator">=</span> redisTemplate.execute(<span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;Long&gt;(script, Long.class), Arrays.asList(<span class="string">&quot;lock&quot;</span>), uuid);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> dataFromDb;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 加锁失败，重试 synchronized()</span></span><br><span class="line">            <span class="comment">// 休眠100ms重试</span></span><br><span class="line">            <span class="keyword">return</span> getCatelogJsonFromDbWithRedisLock();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">最后</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="number">6.</span>更难的事情，业务时间过长，锁的自动续期 </span><br><span class="line">	<span class="type">String</span> <span class="variable">uuid</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line">        <span class="comment">// 设置值同时设置过期时间</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">lock</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(<span class="string">&quot;lock&quot;</span>,uuid,<span class="number">300</span>,TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">if</span> (lock) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;获取分布式锁成功&quot;</span>);</span><br><span class="line">            <span class="comment">// 加锁成功..执行业务</span></span><br><span class="line">            <span class="comment">// 设置过期时间,必须和加锁是同步的，原子的</span></span><br><span class="line"><span class="comment">//            redisTemplate.expire(&quot;lock&quot;,30,TimeUnit.SECONDS);</span></span><br><span class="line">            Map&lt;String,List&lt;Catelog2Vo&gt;&gt; dataFromDb;</span><br><span class="line"><span class="comment">//            String lockValue = redisTemplate.opsForValue().get(&quot;lock&quot;);</span></span><br><span class="line"><span class="comment">//            if (lockValue.equals(uuid)) &#123;</span></span><br><span class="line"><span class="comment">//                // 删除我自己的锁</span></span><br><span class="line"><span class="comment">//                redisTemplate.delete(&quot;lock&quot;); // 删除锁</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                dataFromDb = getDataFromDB();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">script</span> <span class="operator">=</span> <span class="string">&quot;if redis.call(&#x27;get&#x27;,KEYS[1]) == ARGV[1] then return redis.call(&#x27;del&#x27;,KEYS[1]) else return 0 end&quot;</span>;</span><br><span class="line">                <span class="comment">//删除锁</span></span><br><span class="line">                <span class="type">Long</span> <span class="variable">lock1</span> <span class="operator">=</span> redisTemplate.execute(<span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;Long&gt;(script, Long.class), Arrays.asList(<span class="string">&quot;lock&quot;</span>), uuid);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> dataFromDb;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 加锁失败，重试 synchronized()</span></span><br><span class="line">            <span class="comment">// 休眠200ms重试</span></span><br><span class="line">            System.out.println(<span class="string">&quot;获取分布式锁失败，等待重试&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123; TimeUnit.MILLISECONDS.sleep(<span class="number">200</span>); &#125; <span class="keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;</span><br><span class="line">            <span class="keyword">return</span> getCatelogJsonFromDbWithRedisLock();</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>问题：</p>
+<ul>
+<li>分布式加锁解锁都是这两套代码，可以封装成工具类</li>
+<li>分布式锁有更专业的框架</li>
+</ul>
+<h3 id="分布式锁-Redisson"><a href="#分布式锁-Redisson" class="headerlink" title="分布式锁 - Redisson"></a>分布式锁 - Redisson</h3><p>官网文档上.</p>
+<p>详细说明了 不推荐使用 setnx来实现分布式锁，应该参考 the Redlock algorithm 的实现</p>
+<p><img src="/redis/image-20201101050725534.png" alt="image-20201101050725534"></p>
+<p> the Redlock algorithm：<a target="_blank" rel="noopener" href="https://redis.io/topics/distlock">https://redis.io/topics/distlock</a></p>
+<p>在Java 语言环境下使用 Redisson</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/redisson/redisson">https://github.com/redisson/redisson</a></p>
+<p>有对应的   <a target="_blank" rel="noopener" href="https://github.com/redisson/redisson/wiki">中文文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95">目录</a></p>
+<p>在 Maven 仓库中搜索也能搜索出 Redisson</p>
+<p><img src="/redis/image-20201101051157803.png" alt="image-20201101051157803"></p>
+<h5 id="1、引入依赖"><a href="#1、引入依赖" class="headerlink" title="1、引入依赖"></a>1、引入依赖</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--以后使用 redisson 作为分布锁，分布式对象等功能--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.12.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2、创建RedissonClient"><a href="#2、创建RedissonClient" class="headerlink" title="2、创建RedissonClient"></a>2、创建RedissonClient</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.redisson.Redisson;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.redisson.config.Config;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyRedissonConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean(destroyMethod=&quot;shutdown&quot;)</span></span><br><span class="line">    RedissonClient <span class="title function_">redisson</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">       <span class="comment">//Redisson需要的配置</span></span><br><span class="line">        <span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">node</span> <span class="operator">=</span> <span class="string">&quot;8.144.162.164:6376&quot;</span>;<span class="comment">//redis地址</span></span><br><span class="line">        node = node.startsWith(<span class="string">&quot;redis://&quot;</span>) ? node : <span class="string">&quot;redis://&quot;</span> + node;</span><br><span class="line">        <span class="type">SingleServerConfig</span> <span class="variable">serverConfig</span> <span class="operator">=</span> config.useSingleServer()</span><br><span class="line">                .setAddress(node)</span><br><span class="line">                .setTimeout(<span class="number">3000</span>)<span class="comment">//超时时间</span></span><br><span class="line">                .setConnectionPoolSize(<span class="number">10</span>)</span><br><span class="line">                .setConnectionMinimumIdleSize(<span class="number">10</span>);</span><br><span class="line">        serverConfig.setPassword(<span class="string">&quot;root&quot;</span>);<span class="comment">//设置redis密码</span></span><br><span class="line">        <span class="comment">// 创建RedissonClient客户端实例</span></span><br><span class="line">        <span class="type">RedissonClient</span> <span class="variable">redissonClient</span> <span class="operator">=</span> Redisson.create(config);</span><br><span class="line">        <span class="keyword">return</span> redissonClient;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>destroyMethod ： 销毁方法</p>
+<h5 id="2、Redisson-Lock-锁测试-Redisson-Lock-看门狗原理-Redisson-如何解决死锁"><a href="#2、Redisson-Lock-锁测试-Redisson-Lock-看门狗原理-Redisson-如何解决死锁" class="headerlink" title="2、Redisson - Lock 锁测试 &amp; Redisson - Lock 看门狗原理 - Redisson 如何解决死锁"></a>2、Redisson - Lock 锁测试 &amp; Redisson - Lock 看门狗原理 - Redisson 如何解决死锁</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/hello&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">hello</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="comment">// 1、获取一把锁，只要锁得名字一样，就是同一把锁</span></span><br><span class="line">    <span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redission.getLock(<span class="string">&quot;my-lock&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2、加锁</span></span><br><span class="line">    lock.lock(); <span class="comment">// 阻塞式等待，默认加的锁都是30s时间</span></span><br><span class="line">    <span class="comment">//如果业务超长，运行期间过了十秒自动给锁续上新的30s，过了十秒（3分之1开门狗时间 30* 1/3）没有结束再上新的30s</span></span><br><span class="line">   <span class="comment">// 如果我们没有指定锁的超时时间，就是用 30 * 1000 LockWatchchdogTimeout看门狗的默认时间</span></span><br><span class="line">    <span class="comment">//      只要占锁成功，就会启动一个定时任务，【重新给锁设置过期时间，新的过期时间就是看门狗的默认时间】,每隔10s就自动续期</span></span><br><span class="line">    <span class="comment">//      internalLockLeaseTime【看门狗时间】 /3,10s</span></span><br><span class="line"></span><br><span class="line">    lock.lock(<span class="number">10</span>, TimeUnit.SECONDS); <span class="comment">//10s 后自动删除   没有自动续期操作</span></span><br><span class="line">    <span class="comment">//问题 lock.lock(10, TimeUnit.SECONDS) 在锁时间到了后，不会自动续期</span></span><br><span class="line">    <span class="comment">// 1、如果我们传递了锁的超时时间，执行lua脚本 就发送给 redis 执行脚本，进行占锁，默认超时就是我们指定的时间   </span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="comment">//推荐使用</span></span><br><span class="line">    <span class="comment">// lock.lock(10, TimeUnit.SECONDS);    省掉了整个续期操作，手动解锁</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;加锁成功，执行业务...&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">        Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 解锁 将设解锁代码没有运行，reidsson会不会出现死锁</span></span><br><span class="line">        System.out.println(<span class="string">&quot;释放锁....&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Redisson-Lock-源码"><a href="#Redisson-Lock-源码" class="headerlink" title="Redisson Lock 源码"></a><code>Redisson</code> Lock 源码</h5><p>1、进入 <code>Lock</code> 的实现 发现 他调用的也是 <code>lock</code> 方法参数  时间为 -1</p>
+<p><img src="/redis/image-20201101051659465.png" alt="image-20201101051659465"></p>
+<p>2、再次进入 <code>lock</code> 方法</p>
+<p>发现他调用了 tryAcquire</p>
+<p><img src="/redis/image-20201101051925487.png" alt="image-20201101051925487"></p>
+<p>3、进入 tryAcquire</p>
+<p><img src="/redis/image-20201101052008724.png" alt="image-20201101052008724"></p>
+<p>4、里头调用了 tryAcquireAsync</p>
+<p>这里判断 laseTime !&#x3D; -1 就与刚刚的第一步传入的值有关系</p>
+<p><img src="/redis/image-20201101052037959.png" alt="image-20201101052037959"></p>
+<p>5、进入到 <code>tryLockInnerAsync</code> 方法</p>
+<p><img src="/redis/image-20201101052158592.png" alt="image-20201101052158592"></p>
+<p>6、<code>internalLockLeaseTime</code> 这个变量是锁的默认时间</p>
+<p>这个变量在构造的时候就赋初始值</p>
+<p><img src="/redis/image-20201101052346059.png" alt="image-20201101052346059"></p>
+<p>7、最后查看 <code>lockWatchdogTimeout</code> 变量</p>
+<p>也就是30秒的时间</p>
+<p><img src="/redis/image-20201101052428198.png" alt="image-20201101052428198"></p>
+<h5 id="3、Reidsson-读写锁"><a href="#3、Reidsson-读写锁" class="headerlink" title="3、Reidsson - 读写锁"></a>3、Reidsson - 读写锁</h5><p>写锁没释放,读锁就必须等待</p>
+<p>有读锁，写也需要等待</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 保证一定能读取到最新数据，修改期间，写锁是一个排他锁（互斥锁，独享锁）读锁是一个共享锁</span></span><br><span class="line"><span class="comment">     * 写锁没释放读锁就必须等待</span></span><br><span class="line"><span class="comment">     * 读 + 读 相当于无锁，并发读，只会在 reids中记录好，所有当前的读锁，他们都会同时加锁成功</span></span><br><span class="line"><span class="comment">     * 写 + 读 等待写锁释放</span></span><br><span class="line"><span class="comment">     * 写 + 写 阻塞方式</span></span><br><span class="line"><span class="comment">     * 读 + 写 有读锁，写也需要等待</span></span><br><span class="line"><span class="comment">     * 只要有写的存在，都必须等待</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> String</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@RequestMapping(&quot;/write&quot;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">writeValue</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">RReadWriteLock</span> <span class="variable">lock</span> <span class="operator">=</span> redission.getReadWriteLock(<span class="string">&quot;rw_lock&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="type">RLock</span> <span class="variable">rLock</span> <span class="operator">=</span> lock.writeLock();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 1、改数据加写锁，读数据加读锁</span></span><br><span class="line">            rLock.lock();</span><br><span class="line">            System.out.println(<span class="string">&quot;写锁加锁成功...&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">            s = UUID.randomUUID().toString();</span><br><span class="line">            <span class="keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="number">3</span>); &#125; <span class="keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;</span><br><span class="line">            redisTemplate.opsForValue().set(<span class="string">&quot;writeValue&quot;</span>,s);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            rLock.unlock();</span><br><span class="line">            System.out.println(<span class="string">&quot;写锁释放...&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&quot;/read&quot;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">readValue</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">RReadWriteLock</span> <span class="variable">lock</span> <span class="operator">=</span> redission.getReadWriteLock(<span class="string">&quot;rw_lock&quot;</span>);</span><br><span class="line">        <span class="type">RLock</span> <span class="variable">rLock</span> <span class="operator">=</span> lock.readLock();</span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        rLock.lock();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;读锁加锁成功...&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">            s = (String) redisTemplate.opsForValue().get(<span class="string">&quot;writeValue&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123; TimeUnit.SECONDS.sleep(<span class="number">3</span>); &#125; <span class="keyword">catch</span> (InterruptedException e) &#123; e.printStackTrace(); &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            rLock.unlock();</span><br><span class="line">            System.out.println(<span class="string">&quot;读锁释放...&quot;</span> + Thread.currentThread().getId());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>来看下官网的解释</p>
+<p><img src="/redis/image-20201101053042268.png" alt="image-20201101053042268"></p>
+<h5 id="4、Redisson-闭锁测试"><a href="#4、Redisson-闭锁测试" class="headerlink" title="4、Redisson - 闭锁测试"></a>4、Redisson - 闭锁测试</h5><p>官网！！！</p>
+<p><img src="/redis/image-20201101053053554.png" alt="image-20201101053053554"></p>
+<p>上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 放假锁门</span></span><br><span class="line"><span class="comment"> * 1班没人了</span></span><br><span class="line"><span class="comment"> * 5个班级走完，我们可以锁们了</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/lockDoor&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">lockDoor</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="type">RCountDownLatch</span> <span class="variable">door</span> <span class="operator">=</span> redission.getCountDownLatch(<span class="string">&quot;door&quot;</span>);</span><br><span class="line">    door.trySetCount(<span class="number">5</span>);</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    door.await();<span class="comment">//等待闭锁都完成</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">///gogogo/&#123;id&#125; 请求五次</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;放假了....&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@GetMapping(&quot;/gogogo/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">gogogo</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long id)</span> &#123;</span><br><span class="line">    <span class="type">RCountDownLatch</span> <span class="variable">door</span> <span class="operator">=</span> redission.getCountDownLatch(<span class="string">&quot;door&quot;</span>);</span><br><span class="line">    door.countDown();<span class="comment">// 计数器减一</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> id + <span class="string">&quot;班的人走完了.....&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和 JUC 的 CountDownLatch 一致</p>
+<p>await()等待闭锁完成</p>
+<p>countDown() 把计数器减掉后 await就会放行</p>
+<h5 id="5、Redisson-信号量测试"><a href="#5、Redisson-信号量测试" class="headerlink" title="5、Redisson - 信号量测试"></a>5、Redisson - 信号量测试</h5><p>官网！！！</p>
+<p><img src="/redis/image-20201101053450708.png" alt="image-20201101053450708"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 车库停车</span></span><br><span class="line"><span class="comment"> * 3车位</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/park&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">park</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="type">RSemaphore</span> <span class="variable">park</span> <span class="operator">=</span> redission.getSemaphore(<span class="string">&quot;park&quot;</span>);</span><br><span class="line">    <span class="comment">//boolean b = park.acquire();//占用一个车位</span></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">b</span> <span class="operator">=</span> park.tryAcquire();<span class="comment">//获取一个信号，获取一个值，占用一个车位</span></span><br><span class="line">	<span class="keyword">if</span>()&#123;</span><br><span class="line">		<span class="comment">//获取信号量成功执行业务</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> xxx;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;ok=&quot;</span> + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/go&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">go</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">RSemaphore</span> <span class="variable">park</span> <span class="operator">=</span> redission.getSemaphore(<span class="string">&quot;park&quot;</span>);</span><br><span class="line"></span><br><span class="line">    park.release(); <span class="comment">//释放一个车位</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;ok&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似 JUC 中的 Semaphore </p>
+<h5 id="Redission-缓存一致性解决"><a href="#Redission-缓存一致性解决" class="headerlink" title="Redission - 缓存一致性解决"></a>Redission - 缓存一致性解决</h5> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2021/10/28/Java/%E7%BC%93%E5%AD%98/redis/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%93%E5%AD%98/" rel="tag">缓存</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/11/02/Java/%E7%BC%93%E5%AD%98/%E7%BC%93%E5%AD%98%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            缓存数据一致性
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/10/21/Java/SpringCloud%20Alibaba/Sentinel/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Sentinel的使用笔记</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

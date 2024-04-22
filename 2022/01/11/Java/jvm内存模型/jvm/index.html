@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    JVM 虚拟机 |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/jvm内存模型/jvm"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JVM 虚拟机
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/01/11/Java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/jvm/" class="article-date">
+  <time datetime="2022-01-11T04:15:07.000Z" itemprop="datePublished">2022-01-11</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JVM/">JVM</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">4.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">17 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="JVM内存结构"><a href="#JVM内存结构" class="headerlink" title="JVM内存结构"></a>JVM内存结构</h1><p>java虚拟机在执行程序的过程中会将内存划分为不同的数据区域</p>
+<img src="jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvMTU3MTM2MzMwOTUzNC5qcGc" alt="image" style="zoom: 50%;" />
+
+
+
+<p><strong>黄色</strong>（私有）      </p>
+<ol>
+<li>java文件 编译成     .class 文件     </li>
+<li>.class 文件      会被类装载器 <strong>装载</strong>到我们的运行时数据区</li>
+<li>运行时数据区 主要是包括堆、栈（虚拟机栈、本地方法栈）、方法区、程序计数器</li>
+<li>程序计数器：当前线程走到哪</li>
+</ol>
+<ul>
+<li><p>第一，JVM分为五个区域：虚拟机栈、本地方法栈、方法区、堆、程序计数器。</p>
+</li>
+<li><p>第二，JVM五个区中线程私有(黄色)   虚拟机栈、本地方法栈、程序计数器</p>
+<p>​                                                   线程共享区（绿色） 方法区和堆为。</p>
+</li>
+<li><p>第三，JVM不同区域的占用内存大小不同，一般情况下堆最大，程序计数器较小。那么最大的区域会放什么？当然就是Java中最多的“对象”了。</p>
+</li>
+</ul>
+<h2 id="线程共享"><a href="#线程共享" class="headerlink" title="线程共享"></a>线程共享</h2><h3 id="堆（Heap）"><a href="#堆（Heap）" class="headerlink" title="堆（Heap）"></a>堆（Heap）</h3><img src="jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvaGVhcC5qcGc" alt="image" style="zoom:50%;" />
+
+<p>堆可以细分为：</p>
+<ul>
+<li><p>新生代</p>
+<ul>
+<li>Eden空间</li>
+<li>From Survivor 空间</li>
+<li>To Survivor 空间</li>
+</ul>
+</li>
+<li><p>老年代</p>
+</li>
+<li><p>永久代&#x2F;原空间</p>
+<ul>
+<li>Java8 以前永久代、受 JVM 管理</li>
+<li>Java8 以后原空间，直接使用物理内存，因此默认情况下，原空间的大小仅受本地内存限制</li>
+</ul>
+</li>
+</ul>
+<p>上面已经得出结论，堆内存最大，堆是被线程共享，堆的目的就是<strong>存放对象</strong>。几乎所有的<strong>对象实例都在此分配</strong>。当然，随着优化技术的更新，某些数据也会被放在栈上等。</p>
+<p>枪打出头鸟，树大招风。因为堆占用内存空间最大，堆也是Java垃圾回收的主要区域（重点对象），因此也称作“GC堆”（Garbage Collected Heap）。</p>
+<p>Java虚拟机规范规定，Java堆可以处于物理上不连续的内存空间中，只要逻辑上是连续的即可。也就是说堆的内存是一块块拼凑起来的。要增加堆空间时，往上“拼凑”（可扩展性）即可，但当堆中没有内存完成实例分配，并且堆也无法再扩展时，将会抛出OutOfMemoryError异常。</p>
+<h3 id="方法区（Method-Area）"><a href="#方法区（Method-Area）" class="headerlink" title="方法区（Method Area）"></a>方法区（Method Area）</h3><p>方法区与堆有很多共性：线程共享、内存不连续、可扩展、可垃圾回收，同样当无法再扩展时会抛出OutOfMemoryError异常。</p>
+<p>正因为如此相像，Java虚拟机规范把方法区描述为堆的一个逻辑部分，但目前实际上是与Java堆分开的（Non-Heap）。</p>
+<p>方法区个性化的是，它存储的是已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。</p>
+<p>方法区的内存回收目标主要是针对常量池的回收和对类型的卸载，一般来说这个区域的回收“成绩”比较难以令人满意，尤其是类型的卸载，条件相当苛刻，但是回收确实是有必要的。</p>
+<img src="jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvbWV0aG9kYXJlYS5qcGc" alt="image" style="zoom: 50%;" />
+
+<h2 id="线程私有"><a href="#线程私有" class="headerlink" title="线程私有"></a>线程私有</h2><h3 id="程序计数器（Program-Counter-Register）"><a href="#程序计数器（Program-Counter-Register）" class="headerlink" title="程序计数器（Program Counter Register）"></a>程序计数器（Program Counter Register）</h3><p>关于程序计数器我们已经得知：占用内存较小，现成私有。它是唯一没有OutOfMemoryError异常的区域。</p>
+<p>程序计数器的作用可以看做是当前线程所执行的字节码的行号指示器，字节码解释器工作时就是通过改变计数器的值来选取下一条字节码指令。其中，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖计数器来完成。</p>
+<p>Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间的方式来实现的，在任何一个确定的时刻，一个处理器（对于多核处理器来说是一个内核）只会执行一条线程中的指令。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvcHJvZ3JhbS1jb3VudGVyLmpwZw" alt="image"></p>
+<p>因此，为了线程切换后能恢复到正确的执行位置，每条线程都需要有一个独立的程序计数器，各条线程之间的计数器互不影响，独立存储，我们称这类内存区域为“线程私有”的内存。</p>
+<p>如果线程正在执行的是一个Java方法，这个计数器记录的是正在执行的虚拟机字节码指令的地址；如果正在执行的是Natvie方法，这个计数器值则为空（Undefined）。</p>
+<h3 id="虚拟机栈（JVM-Stacks）"><a href="#虚拟机栈（JVM-Stacks）" class="headerlink" title="虚拟机栈（JVM Stacks）"></a>虚拟机栈（JVM Stacks）</h3><p>虚拟机栈线程私有，生命周期与线程相同。</p>
+<p>栈帧(Stack Frame)是用于支持虚拟机进行方法调用和方法执行的数据结构。栈帧存储了方法的局部变量表、操作数栈、动态连接和方法返回地址等信息。每一个方法从调用至执行完成的过程，都对应着一个栈帧在虚拟机栈里从入栈到出栈的过程。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvc3RhY2suanBn" alt="image"></p>
+<p>局部变量表(Local Variable Table)是一组变量值存储空间，用于存放方法参数和方法内定义的局部变量。包括8种基本数据类型、对象引用（reference类型）和returnAddress类型（指向一条字节码指令的地址）。</p>
+<p>其中64位长度的long和double类型的数据会占用2个局部变量空间（Slot），其余的数据类型只占用1个。</p>
+<p>如果线程请求的栈深度大于虚拟机所允许的深度，将抛出StackOverflowError异常；如果虚拟机栈动态扩展时无法申请到足够的内存时会抛出OutOfMemoryError异常。</p>
+<p>操作数栈(Operand Stack)也称作操作栈，是一个后入先出栈(LIFO)。随着方法执行和字节码指令的执行，会从局部变量表或对象实例的字段中复制常量或变量写入到操作数栈，再随着计算的进行将栈中元素出栈到局部变量表或者返回给方法调用者，也就是出栈&#x2F;入栈操作。</p>
+<p>动态链接：Java虚拟机栈中，每个栈帧都包含一个指向运行时常量池中该栈所属方法的符号引用，持有这个引用的目的是为了支持方法调用过程中的动态链接(Dynamic Linking)。</p>
+<p>方法返回：无论方法是否正常完成，都需要返回到方法被调用的位置，程序才能继续进行。</p>
+<h3 id="本地方法栈（Native-Method-Stacks）"><a href="#本地方法栈（Native-Method-Stacks）" class="headerlink" title="本地方法栈（Native Method Stacks）"></a>本地方法栈（Native Method Stacks）</h3><p>本地方法栈（Native Method Stacks）与虚拟机栈作用相似，也会抛出StackOverflowError和OutOfMemoryError异常。</p>
+<p>区别在于虚拟机栈为虚拟机执行Java方法（字节码）服务，而本地方法栈是为虚拟机使用到的Native方法服务。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>经。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvanZtLXhtaW5kLmpwZw" alt="image"></p>
+<h1 id="设置内存参数"><a href="#设置内存参数" class="headerlink" title="设置内存参数"></a>设置内存参数</h1><p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvaGVhcC5qcGc" alt="image"></p>
+<p>图中展示了堆中三个区域：Eden、From Survivor、To Survivor。从图中可以也可以看到它们的大小比例，准确来说是：8:1:1。</p>
+<p>还记得在设置JVM时，常用的类似-Xms和-Xmx等参数吗？对的它们就是用来说设置堆中各区域的大小的。</p>
+<p> <img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvc3RhY2stc2l6ZS5wbmc" alt="image"></p>
+<p>控制参数详解：</p>
+<ul>
+<li>-Xms设置<strong>堆的最小空间</strong>大小。</li>
+<li>-Xmx设置<strong>堆的最大空间</strong>大小。</li>
+<li>-Xmn堆中<strong>新生代初始及最大大小</strong>（NewSize和MaxNewSize为其细化）。</li>
+<li>-XX:NewSize设置新生代最小空间大小。</li>
+<li>-XX:MaxNewSize设置新生代最大空间大小。</li>
+<li>-XX:PermSize设置永久代最小空间大小。</li>
+<li>-XX:MaxPermSize设置永久代最大空间大小。</li>
+<li>-Xss设置每个线程的堆栈大小。</li>
+</ul>
+<p>对照上面两个图，再来看这些参数是不是没有之前那么枯燥了，它们在图中都有了对应的位置。</p>
+<p>有没有发现没有直接设置老年代空间大小的参数？我们通过简单的计算获得。</p>
+<ol>
+<li>老年代空间大小&#x3D;堆空间大小-年轻代大空间大小</li>
+</ol>
+<p>对上面参数立即了，但记忆有困难？那么，以下几个助记词可能更好的帮你记忆和理解参数的含义。</p>
+<p>Xmx（memory maximum）, Xms（memory startup）, Xmn（memory nursery&#x2F;new）, Xss（stack size）。</p>
+<p>对于参数的格式可以这样理解：</p>
+<ul>
+<li><p>-: 标准VM选项，VM规范的选项。</p>
+</li>
+<li><p>-X: 非标准VM选项，不保证所有VM支持。</p>
+</li>
+<li><p>-XX: 高级选项，高级特性，但属于不稳定的选项</p>
+</li>
+</ul>
+<h1 id="GC垃圾回收"><a href="#GC垃圾回收" class="headerlink" title="GC垃圾回收"></a>GC垃圾回收</h1><h2 id="GC概述"><a href="#GC概述" class="headerlink" title="GC概述"></a>GC概述</h2><p>垃圾收集（Garbage Collection）通常被称为“GC”，由虚拟机“自动化”完成垃圾回收工作。</p>
+<p>思考一个问题，既然GC会自动回收，开发人员为什么要学习GC和内存分配呢？为了能够配置上面的参数配置？参数配置又是为了什么？</p>
+<p>“<strong>当需要排查各种内存溢出，内存泄露问题时，当垃圾成为系统达到更高并发量的瓶颈时，我们就需要对GC的自动回收实施必要的监控和调节。</strong>”</p>
+<p>JVM中程序计数器、虚拟机栈、本地方法栈3个区域随线程而生随线程而灭。栈帧随着方法的进入和退出做入栈和出栈操作，实现了自动的内存清理。它们的内存分配和回收都具有确定性。</p>
+<p>因此，GC垃圾回收主要<strong>集中在堆和方法区</strong>，在程序运行期间，这部分内存的分配和使用都是动态的。</p>
+<h2 id="GC回收流程"><a href="#GC回收流程" class="headerlink" title="GC回收流程"></a>GC回收流程</h2><p>​               <img src="/jvm/aHR0cHM6Ly9pbWcxLnR1aWNvb2wuY29tL3JNM1FSM3EuanBnIXdlYg" alt="img"></p>
+<p>（1）Eden区域是用来存放使用new或者newInstance等方式创建的对象，默认都是存放在Eden区，除非这个对象太大，或者超过了设定的阈值-XX:PretenureSizeThresold,这样的对象会被直接分配到Old区域。</p>
+<p>（2）2个Survivor（幸存）区，一般称S0，S1，理论上他们是一样大的，解释一下，他们是如何工作的：</p>
+<p>在不断创建对象的过程中，Eden区会满，这时候会开始做Young G也叫Minor GC，而Young空间的第一次GC就是找出Eden区中，幸存活着的对象，然后将这些对象，放到S0，或S1区中的其中一个， 假设第一次选择了S0，它会逐步将活着的对象拷贝到S0区域，但是如果S0区域满了，剩下活着的对象只能放old区域了，接下来要做的是，将Eden区域 清空，此时时候S1区域也是空的。</p>
+<p>当第二次Eden区域满的时候，就将Eden区域中活着的对象+S0区域中活着的对象，迁移到S1中，如果S1放不下，就会将剩下的部门，放到Old区域中，只是这次对象来源区域增加了S0，最后会将Eden区+S0区域，清空</p>
+<p>第三次和第四次依次类推，始终保证S0和S1有一个是空的，用来存储临时对象，用于交换空间的目的，反反复复多次没有被淘汰的对象，将会放入old区域中，默认是15次。具体的交换过程就和上图中的信息相似。</p>
+<p>如果old区域放不下，会进行fullGC，old区 young区 所有垃圾 全部剔除  如果放得下就放 再放不下 就会报内存溢出异常OOM</p>
+<h2 id="如何判断对象存活"><a href="#如何判断对象存活" class="headerlink" title="如何判断对象存活"></a>如何判断对象存活</h2><p>判断对象常规有两种方法：引用计数算法和可达性分析算法（Reachability Analysis）。</p>
+<p><strong>引用计数算法</strong>：给对象添加一个引用计数器，每当有一个地方引用它时计数器加1，引用释放时计数减1，当计数器为0时可以回收。</p>
+<p>引用计数算法实现简单，判断高效，在微软COM和Python语言等被广泛使用，但在主流的Java虚拟机中没有使用该方法，主要是因为无法解决<strong>对象相互循环引用</strong>的问题。</p>
+<p><strong>可达性分析算法</strong>：基本思想是通过一系列称为“GC Root”的对象（如系统类加载器、栈中的对象、处于激活状态的线程等）作为起点，基于对象引用关系，开始向下搜索，所走过的路径称为引用链，当一个对象到GC Root没有任何引用链相连，证明对象是不可用的。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvZ2Mtcm9vdC5qcGc" alt="image"></p>
+<p>上图中中绿色部分为存活对象，灰色部分为可回收对象。虽然灰色部分内部依旧有关联，但它们到GC Root是不可达的。 </p>
+<h2 id="面试问题"><a href="#面试问题" class="headerlink" title="面试问题"></a>面试问题</h2><p>面试官，说说Java GC都用了哪些算法？分别应用在什么地方？</p>
+<p>答：复制算法、标记清除、标记整理……</p>
+<h2 id="标记清除算法"><a href="#标记清除算法" class="headerlink" title="标记清除算法"></a>标记清除算法</h2><p>标记清除（Mark-Sweep）算法，包含“标记”和“清除”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收掉所有被标记的对象。</p>
+<p>标记清除算法是最基础的收集算法，后续的收集算法都是基于该思路并对其缺点进行改进而得到的。</p>
+<p>​           <img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvbWFyay1jbGVhbi5naWY" alt="image"> </p>
+<p>主要缺点：一个是效率问题，标记和清除过程的效率都不高；另外是空间问题，标记清除之后会产生大量不连续的内存碎片，空间碎片太多可能会导致，当程序在以后的运行过程中需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。</p>
+<h2 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h2><p>复制（Copying）算法：将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当一块内存用完了，就将还存活着的对象复制到另外一块上，然后清理掉前一块。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvZ2MtY29weWluZy5qcGc" alt="image"></p>
+<p>每次对半区内存回收时、内存分配时就不用考虑内存碎片等复杂情况，只要移动堆顶指针，按顺序分配内存即可，实现简单，运行高效。</p>
+<p>缺点：将内存缩小为一半，性价比低，持续复制长生存期的对象则导致效率低下。</p>
+<p>JVM堆中新生代便采用复制算法。回到最初推分配结构图。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvaGVhcC5qcGc" alt="image"></p>
+<p>在GC回收过程中，当Eden区满时，还存活的对象会被复制到其中一个Survivor区；当回收时，会将Eden和使用的Survivor区还存活的对象，复制到另外一个Survivor区，然后对Eden和用过的Survivor区进行清理。</p>
+<p>如果另外一个Survivor区没有足够的内存存储时，则会进入老年代。</p>
+<p>这里针对哪些对象会进入老年代有这样的机制：对象每经历一次复制，年龄加1，达到晋升年龄阈值后，转移到老年代。</p>
+<p>在这整个过程中，由于Eden中的对象属于像浮萍一样“瞬生瞬灭”的对象，所以并不需要1：1的比例来分配内存，而是采用了8：1：1的比例来分配。</p>
+<p>而针对那些像“水熊虫”一样，历经多次清理依旧存活的对象，则会进入老年代，而老年的清理算法则采用下面要讲到的“标记整理算法”。</p>
+<h2 id="标记整理算法"><a href="#标记整理算法" class="headerlink" title="标记整理算法"></a>标记整理算法</h2><p>标记整理（Mark-Compact）算法：标记过程与“标记-清除”算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。</p>
+<p><img src="/jvm/aHR0cDovL3d3dy5jaG91cGFuZ3hpYS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTkvMTAvbWFyay1jb21wYWN0LmpwZw" alt="image"></p>
+<p>这种算法不既不用浪费50%的内存，也解决了复制算法在对象存活率较高时的效率低下问题。</p>
+<h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>分代收集算法，基本思路：将Java的堆内存逻辑上分成两块，新生代和老年代，针对不同存活周期、不同大小的对象采取不同的垃圾回收策略。</p>
+<p>而在新生代中大多数对象都是瞬间对象，只有少量对象存活，复制较少对象即可完成清理，因此采用复制算法。而针对老年代中的对象，存活率较高，又没有额外的担保内存，因此采用标记整理算法。</p>
+<p>其实，回头看，分代收集算法就是对新生代和老年代算法从策略维度的规划而已。</p>
+<h1 id="常见问题锦集"><a href="#常见问题锦集" class="headerlink" title="常见问题锦集"></a>常见问题锦集</h1><h2 id="1、对象进入Old区域有什么坏处？"><a href="#1、对象进入Old区域有什么坏处？" class="headerlink" title="1、对象进入Old区域有什么坏处？"></a>1、对象进入Old区域有什么坏处？</h2><p>old区域一般称为老年代，老年代与新生代不一样，年轻代，我们可以认为存活下来的对象很少，而老年代则相反，存活下来的对象很多，所以JVM的 堆内存，才是我们通常关注的主战场，因为这里面活着的对象非常多，所以发生一次FULL GC，来找出来所有存活的对象是非常耗时的，因此，我们应该尽量避免FULL GC的发生。</p>
+<h2 id="2、S0和S1一般多大，靠什么参数来控制，有什么变化？"><a href="#2、S0和S1一般多大，靠什么参数来控制，有什么变化？" class="headerlink" title="2、S0和S1一般多大，靠什么参数来控制，有什么变化？"></a>2、S0和S1一般多大，靠什么参数来控制，有什么变化？</h2><p>一般来说很小，我们大概知道它与Young差不多相差一倍的比例，设置的的参数主要有两个：</p>
+<p>-XX:SurvivorRatio&#x3D;8</p>
+<p>-XX:InitialSurvivorRatio&#x3D;8</p>
+<p>第一个参数是Eden和Survivor区域比重，注意是一个Survivor的的大小，如果将其设置为8，则说明Eden区是一个Survivor区的8倍，换句话说S0或S1空间是整个Young空间的1&#x2F;10，剩余的80%由Eden区域来使用。</p>
+<p>第二个参数是Young&#x2F;S0的比值，当其设置为8时，表示s0或s1占整个Young空间的12.5%。</p>
+<h2 id="3、一个对象每次Minor-Gc时，活着的对象都会在s0和s1区域转移，经过经过Minor-GC多少次后，会进入Old区域呢？"><a href="#3、一个对象每次Minor-Gc时，活着的对象都会在s0和s1区域转移，经过经过Minor-GC多少次后，会进入Old区域呢？" class="headerlink" title="3、一个对象每次Minor Gc时，活着的对象都会在s0和s1区域转移，经过经过Minor GC多少次后，会进入Old区域呢？"></a>3、一个对象每次Minor Gc时，活着的对象都会在s0和s1区域转移，经过经过Minor GC多少次后，会进入Old区域呢？</h2><p>默认是15次，参数设置-XX:MaxTenuringThreshold&#x3D;15,计数器会在对象的头部记录它交换的次数</p>
+<h2 id="4、为什么发生FULL-GC会带来很大的危害？"><a href="#4、为什么发生FULL-GC会带来很大的危害？" class="headerlink" title="4、为什么发生FULL GC会带来很大的危害？"></a>4、为什么发生FULL GC会带来很大的危害？</h2><p>在发生FULL GC的时候，意味着JVM会安全的暂停所有正在执行的线程（Stop The World），来回收内存空间，在这个时间段内，所有除<strong>了回收垃圾的线程外，其他有关JAVA的程序，代码都会静止</strong>，反映到系统上，就会出现<strong>系统响应大幅度变慢，卡机</strong>等状态。</p>
+<p>举个通俗易懂点的例子，就是在一个房间里，如果有一个人，不停的扔垃圾，然后有一个清洁工不停扫垃圾，这时候，我们的系统是OK的，因为基本不会 出现垃圾堆满房间的情景，而且因为清洁工可以对付过来，假设现在有10个人不停扔垃圾，那么就房间就会很快被堆满，这时候清洁工，由于工作不过来了，大声 吼一声，你们都暂停3分钟，别再扔了，我先把这个房间打扫完，你们才可以扔。</p>
+<p>在这个场景中，一个人扔，一个人扫，就类似于Minor GC，这时候，并不会影响扔垃圾的人，然后一旦10个人同时仍，而且很快就没地方仍了，这时候，就会触发Full GC，然后JVM下令，你们暂时都别仍了，等我什么时候回收完垃圾了，你们在仍，现在大家清楚了吧，所谓的10个人，就是类似我们成千上百的java类， 在不停的执行任务，所谓的清洁工，就是我们的GC机制，所以，大家在平时编码的时候，一定注意尽量<strong>少造点垃圾对象</strong>，这样触发FULL GC的几率，才会变小。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2022/01/11/Java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/jvm/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/01/11/Java/tomcat/Tomcat/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Tomcat的安装及配置
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/12/17/Java/elasticsearch/elasticsearch/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">elasticsearch的使用笔记</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

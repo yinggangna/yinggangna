@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    为什么选择 Kafka消息队列 |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/消息队列/消息队列kafka"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  为什么选择 Kafka消息队列
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/06/02/Java/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/" class="article-date">
+  <time datetime="2021-06-01T23:41:24.000Z" itemprop="datePublished">2021-06-02</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">消息队列</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">6.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">27 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="为什么选择-Kafka"><a href="#为什么选择-Kafka" class="headerlink" title="为什么选择 Kafka"></a>为什么选择 Kafka</h1><p>再来看看在 Echo 这个项目中，哪些地方使用了消息队列也就是 Kafka：</p>
+<img src="%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/image-20220226165408619.png" alt="image-20220226165408619" style="zoom:80%;" />
+
+<ul>
+<li>评论、点赞、关注事件触发通知</li>
+<li>发帖事件触发 Elasticsearch 服务器中相应的数据更新</li>
+<li>删帖事件触发 Elasticsearch 服务器中相应的数据更新</li>
+</ul>
+<p>实际上在早期的时候 Kafka 并不是一个合格的消息队列，不过现在已经足够优秀。</p>
+<p>不说我们这个用户量比较小的论坛，从大体量的论坛项目来考虑，我觉得 Kafka 比较适合的原因有如下：</p>
+<p>1）Kafka 天生支持分布式，Broker、Producer 和 Consumer 都原生自动支持分布式；</p>
+<p>2）Kafka 拥有多分区（Partition）和多副本（Replica）机制，能提供比较好的并发能力（负载均衡）以及较高的可用性和可靠性，理论上支持消息无限堆积；</p>
+<p>3）而且，在一众消息队列里，Kafka 的性能是比较高的。</p>
+<p>点赞、关注、私信等操作都会触发通知，在流量巨大的社交论坛网站中，这个系统通知的需求是非常庞大的，为保证系统的高性能，使用消息队列 Kafka 是个明智的选择。</p>
+<h1 id="什么是Producer、Consumer、Broker、Topic、Partition？"><a href="#什么是Producer、Consumer、Broker、Topic、Partition？" class="headerlink" title="什么是Producer、Consumer、Broker、Topic、Partition？"></a>什么是Producer、Consumer、Broker、Topic、Partition？</h1><p>Kafka 将生产者发布的消息发送到 <strong>Topic（主题）</strong> 中，</p>
+<p>需要这些消息的消费者可以订阅这些 <strong>Topic（主题）</strong>，如下图所示：</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/KafkaTopicPartitioning.png" alt="Kafka Topic Partition"></p>
+<p>上面这张图也为我们引出了，Kafka 比较重要的几个概念：</p>
+<ol>
+<li><strong>Producer（生产者）</strong> : 产生消息的一方。</li>
+<li><strong>Consumer（消费者）</strong> : 消费消息的一方。</li>
+<li>Broker（代理）<strong>实例</strong> : 可以看作是一个独立的 Kafka 实例。多个 Kafka Broker 组成一个 Kafka Cluster。</li>
+</ol>
+<p>同时，你一定也注意到每个 Broker 中又包含了 Topic 以及 Partition 这两个重要的概念：</p>
+<ul>
+<li><p><strong>Topic（主题）</strong> : Producer 将消息发送到特定的主题，Consumer 通过订阅特定的 Topic(主题) 来消费消息。</p>
+</li>
+<li><p><strong>Partition（分区）</strong> : Partition 属于 Topic 的一部分。一个 Topic 可以有多个 Partition ，</p>
+<p>并且同一 Topic 下的 Partition 可以分布在不同的 Broker 上，这也就表明一个 Topic 可以横跨多个 Broker 。这正如我上面所画的图一样。</p>
+</li>
+</ul>
+<blockquote>
+<p>划重点：**Kafka 中的 Partition（分区） 实际上可以对应成为消息队列中的队列。这样是不是更好理解一点？</p>
+</blockquote>
+<h1 id="队列模型了解吗？Kafka-的消息模型知道吗？"><a href="#队列模型了解吗？Kafka-的消息模型知道吗？" class="headerlink" title="队列模型了解吗？Kafka 的消息模型知道吗？"></a>队列模型了解吗？Kafka 的消息模型知道吗？</h1><blockquote>
+<p>题外话：早期的 JMS 和 AMQP 属于消息服务领域权威组织所做的相关的标准，</p>
+<p>但是，这些标准的进化跟不上消息队列的演进速度，这些标准实际上已经属于废弃状态。</p>
+<p>所以，可能存在的情况是：不同的消息队列都有自己的一套消息模型。</p>
+</blockquote>
+<h4 id="队列模型：早期的消息模型"><a href="#队列模型：早期的消息模型" class="headerlink" title="队列模型：早期的消息模型"></a>队列模型：早期的消息模型</h4><p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/%E9%98%9F%E5%88%97%E6%A8%A1%E5%9E%8B23-1645866333309.png" alt="队列模型"></p>
+<p><strong>使用队列（Queue）作为消息通信载体，满足生产者与消费者模式，一条消息只能被一个消费者使用，未被消费的消息在队列中保留直到被消费或超时。</strong> 比如：我们生产者发送 100 条消息的话，两个消费者来消费一般情况下两个消费者会按照消息发送的顺序各自消费一半（也就是你一个我一个的消费。）</p>
+<p><strong>队列模型存在的问题：</strong></p>
+<p>假如我们存在这样一种情况：我们需要将生产者产生的消息分发给多个消费者，并且每个消费者都能接收到完整的消息内容。</p>
+<p>这种情况，队列模型就不好解决了。很多比较杠精的人就说：我们可以为每个消费者创建一个单独的队列，让生产者发送多份。这是一种非常愚蠢的做法，浪费资源不说，还违背了使用消息队列的目的。</p>
+<h4 id="发布-订阅模型-Kafka-消息模型"><a href="#发布-订阅模型-Kafka-消息模型" class="headerlink" title="发布-订阅模型:Kafka 消息模型"></a>发布-订阅模型:Kafka 消息模型</h4><p>发布-订阅模型主要是为了解决队列模型存在的问题。</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B-1645866333310.png" alt="发布订阅模型"></p>
+<p>发布订阅模型（Pub-Sub） 使用<strong>主题（Topic）</strong> 作为消息通信载体，类似于<strong>广播模式</strong>；发布者发布一条消息，该消息通过主题传递给所有的订阅者，<strong>在一条消息广播之后才订阅的用户则是收不到该条消息的</strong>。</p>
+<p><strong>在发布 - 订阅模型中，如果只有一个订阅者，那它和队列模型就基本是一样的了。所以说，发布 - 订阅模型在功能层面上是可以兼容队列模型的。</strong></p>
+<p><strong>Kafka 采用的就是发布 - 订阅模型。</strong></p>
+<blockquote>
+<p><strong>RocketMQ 的消息模型和 Kafka 基本是完全一样的。唯一的区别是 Kafka 中没有队列这个概念，与之对应的是 Partition（分区）。</strong></p>
+</blockquote>
+<h1 id="Kafka-的多副本机制了解吗？带来了什么好处？"><a href="#Kafka-的多副本机制了解吗？带来了什么好处？" class="headerlink" title="Kafka 的多副本机制了解吗？带来了什么好处？"></a>Kafka 的多副本机制了解吗？带来了什么好处？</h1><p>还有一点我觉得比较重要的是 Kafka 为分区（Partition）引入了多副本（Replica）机制。</p>
+<p>分区（Partition）中的多个副本之间会有一个叫做 leader 的家伙，其他副本称为 follower。</p>
+<p>我们发送的消息会被发送到 leader 副本，然后 follower 副本才能从 leader 副本中拉取消息进行同步。</p>
+<blockquote>
+<p>生产者和消费者只与 leader 副本交互。你可以理解为其他副本只是 leader 副本的拷贝，它们的存在只是为了保证消息存储的安全性。当 leader 副本发生故障时会从 follower 中选举出一个 leader,但是 follower 中如果有和 leader 同步程度达不到要求的参加不了 leader 的竞选。</p>
+</blockquote>
+<p><strong>Kafka 的多分区（Partition）以及多副本（Replica）机制有什么好处呢？</strong></p>
+<ol>
+<li>Kafka 通过给特定 Topic 指定多个 Partition, 而各个 Partition 可以分布在不同的 Broker 上, 这样便能提供比较好的并发能力（负载均衡）。</li>
+<li>Partition 可以指定对应的 Replica 数, 这也极大地提高了消息存储的安全性, 提高了容灾能力，不过也相应的增加了所需要的存储空间。</li>
+</ol>
+<h1 id="Zookeeper-在-Kafka-中的作用知道吗？"><a href="#Zookeeper-在-Kafka-中的作用知道吗？" class="headerlink" title="Zookeeper 在 Kafka 中的作用知道吗？"></a>Zookeeper 在 Kafka 中的作用知道吗？</h1><blockquote>
+<p><strong>要想搞懂 zookeeper 在 Kafka 中的作用 一定要自己搭建一个 Kafka 环境然后自己进 zookeeper 去看一下有哪些文件夹和 Kafka 有关，每个节点又保存了什么信息。</strong></p>
+</blockquote>
+<p>下图就是我的本地 Zookeeper ，它成功和我本地的 Kafka 关联上（以下文件夹结构借助 idea 插件 Zookeeper tool 实现）。</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/zookeeper-kafka.jpg" alt="img"></p>
+<p>ZooKeeper 主要为 Kafka 提供元数据的管理的功能。</p>
+<p>从图中我们可以看出，Zookeeper 主要为 Kafka 做了下面这些事情：</p>
+<ol>
+<li><strong>Broker 注册</strong> ：在 Zookeeper 上会有一个专门<strong>用来进行 Broker 服务器列表记录</strong>的节点。每个 Broker 在启动时，都会到 Zookeeper 上进行注册，即到 <code>/brokers/ids</code> 下创建属于自己的节点。每个 Broker 就会将自己的 IP 地址和端口等信息记录到该节点中去</li>
+<li><strong>Topic 注册</strong> ： 在 Kafka 中，同一个<strong>Topic 的消息会被分成多个分区</strong>并将其分布在多个 Broker 上，<strong>这些分区信息及与 Broker 的对应关系</strong>也都是由 Zookeeper 在维护。比如我创建了一个名字为 my-topic 的主题并且它有两个分区，对应到 zookeeper 中会创建这些文件夹：<code>/brokers/topics/my-topic/Partitions/0</code>、<code>/brokers/topics/my-topic/Partitions/1</code></li>
+<li><strong>负载均衡</strong> ：上面也说过了 Kafka 通过给特定 Topic 指定多个 Partition, 而各个 Partition 可以分布在不同的 Broker 上, 这样便能提供比较好的并发能力。 对于同一个 Topic 的不同 Partition，Kafka 会尽力将这些 Partition 分布到不同的 Broker 服务器上。当生产者产生消息后也会尽量投递到不同 Broker 的 Partition 里面。当 Consumer 消费的时候，Zookeeper 可以根据当前的 Partition 数量以及 Consumer 数量来实现动态负载均衡。</li>
+<li>……</li>
+</ol>
+<h3 id="Kafka-如何保证消息的消费顺序？"><a href="#Kafka-如何保证消息的消费顺序？" class="headerlink" title="#Kafka 如何保证消息的消费顺序？"></a><a target="_blank" rel="noopener" href="https://javaguide.cn/high-performance/message-queue/kafka%E7%9F%A5%E8%AF%86%E7%82%B9&%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#kafka-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E7%9A%84%E6%B6%88%E8%B4%B9%E9%A1%BA%E5%BA%8F">#</a>Kafka 如何保证消息的消费顺序？</h3><p>我们在使用消息队列的过程中经常有业务场景需要严格保证消息的消费顺序，比如我们同时发了 2 个消息，这 2 个消息对应的操作分别对应的数据库操作是：</p>
+<ol>
+<li>更改用户会员等级。</li>
+<li>根据会员等级计算订单价格。</li>
+</ol>
+<p>假如这两条消息的消费顺序不一样造成的最终结果就会截然不同。</p>
+<p>我们知道 Kafka 中 Partition(分区)是真正保存消息的地方，我们发送的消息都被放在了这里。而我们的 Partition(分区) 又存在于 Topic(主题) 这个概念中，并且我们可以给特定 Topic 指定多个 Partition。</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/KafkaTopicPartionsLayout.png" alt="img"></p>
+<p>每次添加消息到 Partition(分区) 的时候都会采用尾加法，如上图所示。 <strong>Kafka 只能为我们保证 Partition(分区) 中的消息有序。</strong></p>
+<blockquote>
+<p>消息在被追加到 Partition(分区)的时候都会分配一个特定的偏移量（offset）。Kafka 通过偏移量（offset）来保证消息在分区内的顺序性。</p>
+</blockquote>
+<p>所以，我们就有一种很简单的保证消息消费顺序的方法：<strong>1 个 Topic 只对应一个 Partition</strong>。这样当然可以解决问题，但是破坏了 Kafka 的设计初衷。</p>
+<p>Kafka 中发送 1 条消息的时候，可以指定 topic, partition, key,data（数据） 4 个参数。如果你发送消息的时候指定了 Partition 的话，所有消息都会被发送到指定的 Partition。并且，同一个 key 的消息可以保证只发送到同一个 partition，这个我们可以采用表&#x2F;对象的 id 来作为 key 。</p>
+<p>总结一下，对于如何保证 Kafka 中消息消费的顺序，有了下面两种方法：</p>
+<ol>
+<li>1 个 Topic 只对应一个 Partition。</li>
+<li>（推荐）发送消息的时候指定 key&#x2F;Partition。</li>
+</ol>
+<p>当然不仅仅只有上面两种方法，上面两种方法是我觉得比较好理解的，</p>
+<h3 id="Kafka-如何保证消息不丢失"><a href="#Kafka-如何保证消息不丢失" class="headerlink" title="#Kafka 如何保证消息不丢失"></a><a target="_blank" rel="noopener" href="https://javaguide.cn/high-performance/message-queue/kafka%E7%9F%A5%E8%AF%86%E7%82%B9&%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#kafka-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1">#</a>Kafka 如何保证消息不丢失</h3><h4 id="生产者丢失消息的情况"><a href="#生产者丢失消息的情况" class="headerlink" title="#生产者丢失消息的情况"></a><a target="_blank" rel="noopener" href="https://javaguide.cn/high-performance/message-queue/kafka%E7%9F%A5%E8%AF%86%E7%82%B9&%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#%E7%94%9F%E4%BA%A7%E8%80%85%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF%E7%9A%84%E6%83%85%E5%86%B5">#</a>生产者丢失消息的情况</h4><p>生产者(Producer) 调用<code>send</code>方法发送消息之后，消息可能因为网络问题并没有发送过去。</p>
+<p>所以，我们不能默认在调用<code>send</code>方法发送消息之后消息发送成功了。为了确定消息是发送成功，我们要判断消息发送的结果。但是要注意的是 Kafka 生产者(Producer) 使用 <code>send</code> 方法发送消息实际上是异步的操作，我们可以通过 <code>get()</code>方法获取调用结果，但是这样也让它变为了同步操作，示例代码如下：</p>
+<blockquote>
+<p><strong>详细代码见我的这篇文章：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247486269&idx=2&sn=ec00417ad641dd8c3d145d74cafa09ce&chksm=cea244f6f9d5cde0c8eb233fcc4cf82e11acd06446719a7af55230649863a3ddd95f78d111de&token=1633957262&lang=zh_CN#rd">Kafka系列第三篇！10 分钟学会如何在 Spring Boot 程序中使用 Kafka 作为消息队列?(opens new window)</a></strong></p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SendResult&lt;String, Object&gt; sendResult = kafkaTemplate.send(topic, o).get();</span><br><span class="line"><span class="keyword">if</span> (sendResult.getRecordMetadata() != <span class="literal">null</span>) &#123;</span><br><span class="line">  logger.info(<span class="string">&quot;生产者成功发送消息到&quot;</span> + sendResult.getProducerRecord().topic() + <span class="string">&quot;-&gt; &quot;</span> + sendRe</span><br><span class="line">              sult.getProducerRecord().value().toString());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1<br>2<br>3<br>4<br>5</p>
+<p>但是一般不推荐这么做！可以采用为其添加回调函数的形式，示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ListenableFuture&lt;SendResult&lt;String, Object&gt;&gt; future = kafkaTemplate.send(topic, o);</span><br><span class="line">future.addCallback(result -&gt; logger.info(<span class="string">&quot;生产者成功发送消息到topic:&#123;&#125; partition:&#123;&#125;的消息&quot;</span>, result.getRecordMetadata().topic(), result.getRecordMetadata().partition()),</span><br><span class="line">        ex -&gt; logger.error(<span class="string">&quot;生产者发送消失败，原因：&#123;&#125;&quot;</span>, ex.getMessage()));</span><br></pre></td></tr></table></figure>
+
+<p>1<br>2<br>3</p>
+<p>如果消息发送失败的话，我们检查失败的原因之后重新发送即可！</p>
+<p><strong>另外这里推荐为 Producer 的<code>retries</code>（重试次数）设置一个比较合理的值，一般是 3 ，但是为了保证消息不丢失的话一般会设置比较大一点。设置完成之后，当出现网络问题之后能够自动重试消息发送，避免消息丢失。另外，建议还要设置重试间隔，因为间隔太小的话重试的效果就不明显了，网络波动一次你3次一下子就重试完了</strong></p>
+<h4 id="消费者丢失消息的情况"><a href="#消费者丢失消息的情况" class="headerlink" title="#消费者丢失消息的情况"></a><a target="_blank" rel="noopener" href="https://javaguide.cn/high-performance/message-queue/kafka%E7%9F%A5%E8%AF%86%E7%82%B9&%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#%E6%B6%88%E8%B4%B9%E8%80%85%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF%E7%9A%84%E6%83%85%E5%86%B5">#</a>消费者丢失消息的情况</h4><p>我们知道消息在被追加到 Partition(分区)的时候都会分配一个特定的偏移量（offset）。偏移量（offset)表示 Consumer 当前消费到的 Partition(分区)的所在的位置。Kafka 通过偏移量（offset）可以保证消息在分区内的顺序性。</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/kafka-offset.jpg" alt="kafka offset"></p>
+<p>当消费者拉取到了分区的某个消息之后，消费者会自动提交了 offset。自动提交的话会有一个问题，试想一下，当消费者刚拿到这个消息准备进行真正消费的时候，突然挂掉了，消息实际上并没有被消费，但是 offset 却被自动提交了。</p>
+<p><strong>解决办法也比较粗暴，我们手动关闭自动提交 offset，每次在真正消费完消息之后再自己手动提交 offset 。</strong> 但是，细心的朋友一定会发现，这样会带来消息被重新消费的问题。比如你刚刚消费完消息之后，还没提交 offset，结果自己挂掉了，那么这个消息理论上就会被消费两次。</p>
+<h4 id="Kafka-弄丢了消息"><a href="#Kafka-弄丢了消息" class="headerlink" title="#Kafka 弄丢了消息"></a><a target="_blank" rel="noopener" href="https://javaguide.cn/high-performance/message-queue/kafka%E7%9F%A5%E8%AF%86%E7%82%B9&%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#kafka-%E5%BC%84%E4%B8%A2%E4%BA%86%E6%B6%88%E6%81%AF">#</a>Kafka 弄丢了消息</h4><p>我们知道 Kafka 为分区（Partition）引入了多副本（Replica）机制。分区（Partition）中的多个副本之间会有一个叫做 leader 的家伙，其他副本称为 follower。我们发送的消息会被发送到 leader 副本，然后 follower 副本才能从 leader 副本中拉取消息进行同步。生产者和消费者只与 leader 副本交互。你可以理解为其他副本只是 leader 副本的拷贝，它们的存在只是为了保证消息存储的安全性。</p>
+<p><strong>试想一种情况：假如 leader 副本所在的 broker 突然挂掉，那么就要从 follower 副本重新选出一个 leader ，但是 leader 的数据还有一些没有被 follower 副本的同步的话，就会造成消息丢失。</strong></p>
+<p><strong>设置 acks &#x3D; all</strong></p>
+<p>解决办法就是我们设置 <strong>acks &#x3D; all</strong>。acks 是 Kafka 生产者(Producer) 很重要的一个参数。</p>
+<p>acks 的默认值即为1，代表我们的消息被leader副本接收之后就算被成功发送。当我们配置 <strong>acks &#x3D; all</strong> 代表则所有副本都要接收到该消息之后该消息才算真正成功被发送。</p>
+<p><strong>设置 replication.factor &gt;&#x3D; 3</strong></p>
+<p>为了保证 leader 副本能有 follower 副本能同步消息，我们一般会为 topic 设置 <strong>replication.factor &gt;&#x3D; 3</strong>。这样就可以保证每个 分区(partition) 至少有 3 个副本。虽然造成了数据冗余，但是带来了数据的安全性。</p>
+<p><strong>设置 min.insync.replicas &gt; 1</strong></p>
+<p>一般情况下我们还需要设置 <strong>min.insync.replicas&gt; 1</strong> ，这样配置代表消息至少要被写入到 2 个副本才算是被成功发送。<strong>min.insync.replicas</strong> 的默认值为 1 ，在实际生产中应尽量避免默认值 1。</p>
+<p>但是，为了保证整个 Kafka 服务的高可用性，你需要确保 <strong>replication.factor &gt; min.insync.replicas</strong> 。为什么呢？设想一下假如两者相等的话，只要是有一个副本挂掉，整个分区就无法正常工作了。这明显违反高可用性！一般推荐设置成 <strong>replication.factor &#x3D; min.insync.replicas + 1</strong>。</p>
+<p><strong>设置 unclean.leader.election.enable &#x3D; false</strong></p>
+<blockquote>
+<p><strong>Kafka 0.11.0.0版本开始 unclean.leader.election.enable 参数的默认值由原来的true 改为false</strong></p>
+</blockquote>
+<p>我们最开始也说了我们发送的消息会被发送到 leader 副本，然后 follower 副本才能从 leader 副本中拉取消息进行同步。多个 follower 副本之间的消息同步情况不一样，当我们配置了 <strong>unclean.leader.election.enable &#x3D; false</strong> 的话，当 leader 副本发生故障时就不会从 follower 副本中和 leader 同步程度达不到要求的副本中选择出 leader ，这样降低了消息丢失的可能性。</p>
+<h3 id="Kafka-如何保证消息不重复消费"><a href="#Kafka-如何保证消息不重复消费" class="headerlink" title="#Kafka 如何保证消息不重复消费"></a><a target="_blank" rel="noopener" href="https://javaguide.cn/high-performance/message-queue/kafka%E7%9F%A5%E8%AF%86%E7%82%B9&%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#kafka-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9">#</a>Kafka 如何保证消息不重复消费</h3><p><strong>kafka出现消息重复消费的原因：</strong></p>
+<ul>
+<li>服务端侧已经消费的数据没有成功提交 offset（根本原因）。</li>
+<li>Kafka 侧 由于服务端处理业务时间长或者网络链接等等原因让 Kafka 认为服务假死，触发了分区 rebalance。</li>
+</ul>
+<p><strong>解决方案：</strong></p>
+<ul>
+<li><p>消费消息服务做幂等校验，比如 Redis 的set、MySQL 的主键等天然的幂等功能。这种方法最有效。</p>
+</li>
+<li><p>将</p>
+<p><code>enable.auto.commit</code></p>
+<p>参数设置为 false，关闭自动提交，开发者在代码中手动提交 offset。那么这里会有个问题：</p>
+<p>什么时候提交offset合适？</p>
+<ul>
+<li>处理完消息再提交：依旧有消息重复消费的风险，和自动提交一样</li>
+<li>拉取到消息即提交：会有消息丢失的风险。允许消息延时的场景，一般会采用这种方式。然后，通过定时任务在业务不繁忙（比如凌晨）的时候做数据兜底。</li>
+</ul>
+</li>
+</ul>
+<h1 id="kafka的安装"><a href="#kafka的安装" class="headerlink" title="kafka的安装"></a>kafka的安装</h1><h2 id="1-下载镜像"><a href="#1-下载镜像" class="headerlink" title="1.下载镜像"></a>1.下载镜像</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull wurstmeister/zookeeper  </span><br><span class="line">docker pull wurstmeister/kafka  </span><br></pre></td></tr></table></figure>
+
+<h2 id="2-启动zookeeper容器"><a href="#2-启动zookeeper容器" class="headerlink" title="2.启动zookeeper容器"></a>2.启动zookeeper容器</h2><blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name zookeeper -p 2181:2181 -v /etc/localtime:/etc/localtime wurstmeister/zookeeper</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p># 如果想修改 zookeeper 配置文件 </p>
+<p>docker exec -it name &#x2F;bin&#x2F;bash </p>
+<p>cd &#x2F;opt&#x2F;zookeeper-3.4.13&#x2F;conf&#x2F;zoo.cfg</p>
+<h2 id="3-启动kafka容器"><a href="#3-启动kafka容器" class="headerlink" title="3.启动kafka容器"></a>3.启动kafka容器</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run  -d --name kafka -p 9092:9092 -e KAFKA_BROKER_ID=0 -e KAFKA_ZOOKEEPER_CONNECT=8.144.162.164:2181/kafka -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://8.144.162.164:9092 -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 -t wurstmeister/kafka</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-e KAFKA_BROKER_ID=0 在kafka集群中，每个kafka都有一个BROKER_ID来区分自己</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-e KAFKA_ZOOKEEPER_CONNECT=8.144.162.164:2181/kafka 配置zookeeper管理kafka的路径10.9.44.11:2181/kafka</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://8.144.162.164:9092 把kafka的地址端口注册给zookeeper</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 配置kafka的监听端口</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-v /etc/localtime:/etc/localtime 容器时间同步虚拟机的时间</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里面主要设置了4个参数</p>
+<p>KAFKA_BROKER_ID&#x3D;0<br>KAFKA_ZOOKEEPER_CONNECT&#x3D;8.144.162.164:2181<br>KAFKA_ADVERTISED_LISTENERS&#x3D;PLAINTEXT:&#x2F;&#x2F;8.144.162.164:9092<br>KAFKA_LISTENERS&#x3D;PLAINTEXT:&#x2F;&#x2F;0.0.0.0:9092<br>中间两个参数的8.144.162.164改为宿主机器的IP地址，如果不这么设置，可能会导致在别的机器上访问不到kafka。</p>
+<h2 id="4-测试kafka"><a href="#4-测试kafka" class="headerlink" title="4.测试kafka"></a>4.测试kafka</h2><p>进入kafka容器的命令行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it kafka /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>进入kafka所在目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd opt/kafka_2.11-2.0.0/</span><br></pre></td></tr></table></figure>
+
+<p>启动消息发送方</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic testkafka</span><br></pre></td></tr></table></figure>
+
+<p>克隆会话<br>进入kafka所在目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd opt/kafka_2.11-2.0.0/</span><br></pre></td></tr></table></figure>
+
+<p>启动消息接收方</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic testkafka --from-beginning</span><br></pre></td></tr></table></figure>
+
+<p>在消息发送方输入123456<br>在消息接收方查看<br>如果看到123456 消息发送完成</p>
+<h2 id="5-集群搭建"><a href="#5-集群搭建" class="headerlink" title="5.集群搭建"></a>5.集群搭建</h2><p>使用docker命令可快速在同一台机器搭建多个kafka，只需要改变brokerId和端口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run  -d --name kafka1 -p 9093:9093 -e KAFKA_BROKER_ID=1 -e KAFKA_ZOOKEEPER_CONNECT=8.144.162.164:2181/kafka -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://8.144.162.164:9093 -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9093 -t wurstmeister/kafka</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建Replication为2，Partition为2的topic"><a href="#创建Replication为2，Partition为2的topic" class="headerlink" title="创建Replication为2，Partition为2的topic"></a>创建Replication为2，Partition为2的topic</h2><p>在kafka容器中的opt&#x2F;kafka_2.12-1.1.0&#x2F;目录下输入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --create --zookeeper 8.144.162.164:2181/kafka --replication-factor 2 --partitions 2 --topic partopic</span><br></pre></td></tr></table></figure>
+
+<p>–create   创建主题。</p>
+<p>–replication-factor   设置分区副本。</p>
+<p>–partitions    设置分区数。</p>
+<p>–topic    操作的topic名称。</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/image-20220227153457445.png" alt="image-20220227153457445"></p>
+<h2 id="6-查看topic的状态"><a href="#6-查看topic的状态" class="headerlink" title="6.查看topic的状态"></a>6.查看topic的状态</h2><p>在kafka容器中的opt&#x2F;kafka_2.12-1.1.0&#x2F;目录下输入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --describe --zookeeper 8.144.162.164:2181/kafka --topic partopic</span><br></pre></td></tr></table></figure>
+
+
+
+<p>–describe   查看主题详细描述。</p>
+<p>输出结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bash-5.1# bin/kafka-topics.sh --describe --zookeeper 8.144.162.164:2181/kafka --topic partopic</span><br><span class="line"></span><br><span class="line">Topic: partopic TopicId: zj1vuWG2Q0CyOB2Fv21Fwg PartitionCount: 2       ReplicationFactor: 2    Configs:</span><br><span class="line">        Topic: partopic Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0,1</span><br><span class="line">        Topic: partopic Partition: 1    Leader: 1       Replicas: 1,0   Isr: 1,0</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>PartitionCount: 2  两个分区</p>
+<p>ReplicationFactor: 2两个副本</p>
+<p>Partition  分区名字  从0开始  0,1,2</p>
+<p>Leader   2个副本分别存储在 2台机器上 分别是0,1    谁是副本的leader    0 这个节点</p>
+<p>Replicas </p>
+<p>显示每个分区的Leader机器为broker0，在broker0和1上具有备份，Isr代表存活的备份机器中存活的。<br>当停掉kafka1后，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop kafka1</span><br></pre></td></tr></table></figure>
+
+<p>再查看topic状态，输出结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Topic: partopic TopicId: zj1vuWG2Q0CyOB2Fv21Fwg PartitionCount: 2       ReplicationFactor: 2    Configs:</span><br><span class="line">        Topic: partopic Partition: 0    Leader: 0       Replicas: 0,1   Isr: 0</span><br><span class="line">        Topic: partopic Partition: 1    Leader: 0       Replicas: 1,0   Isr: 0</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">## 查询集群描述</span></span><br><span class="line">bin/kafka-topics.sh --describe --zookeeper 127.0.0.1:2181</span><br><span class="line"></span><br><span class="line"><span class="comment">## 查询集群描述（新）</span></span><br><span class="line">bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic foo --describe</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<p>一个主题可以分多个分区  </p>
+<p>一个分区的数据 只能有一个消费者</p>
+<p>如果一个分区挂了怎么办</p>
+<p>为了保证数据的可靠性安全性</p>
+<p>可以增加副本</p>
+<p>副本又分为leader 和 follower  主节点 从节点</p>
+<p>处理数据的时候 只针对leader这个副本进行 生产和消费数据</p>
+<img src="%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/image-20220228210818214.png" alt="image-20220228210818214" style="zoom: 50%;" />
+
+
+
+
+
+<p>leader挂掉之后 follower  有条件可以称为新的leader</p>
+<p>kafka有些数据是存储在zookeeper中的</p>
+<p>记录服务器节点运行的状态  哪些节点在工作</p>
+<p>为了提高吞吐量 引入的分区的概念</p>
+<p>消费者角度来说 引入了消费者组的概念</p>
+<h1 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h1><h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/image-20220302014739503.png" alt="image-20220302014739503"></p>
+<h2 id="properties"><a href="#properties" class="headerlink" title="properties"></a>properties</h2><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Kafka</span></span><br><span class="line"><span class="attr">spring.kafka.bootstrap-servers</span> = <span class="string">8.144.162.164:9092,8.144.162.164:9093</span></span><br><span class="line"><span class="comment"># 该字段见 Kafka 安装包中的 consumer.proerties，可自行修改, 修改完毕后需要重启 Kafka</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#(必需)consumer组id</span></span><br><span class="line"><span class="attr">spring.kafka.consumer.group-id</span> = <span class="string">test-consumer-group</span></span><br><span class="line"><span class="comment">#自动向zookeeper提交offset信息</span></span><br><span class="line"><span class="attr">spring.kafka.consumer.enable-auto-commit</span> = <span class="string">true</span></span><br><span class="line"><span class="comment">#自动更新时间</span></span><br><span class="line"><span class="attr">spring.kafka.consumer.auto-commit-interval</span> = <span class="string">3000</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProducerController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Kafka 模板用来向 kafka 发送数据</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> KafkaTemplate kafkaTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&quot;/atguigu&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">data</span><span class="params">(String msg)</span> &#123;</span><br><span class="line">        kafkaTemplate.send(<span class="string">&quot;partopic&quot;</span>, msg);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;ok&quot;</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>接收消息  opt&#x2F;kafka_</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/kafka-console-consumer.sh --bootstrap-server 8.144.162.164:9092 --topic partopic --from-beginning</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="接收消息"><a href="#接收消息" class="headerlink" title="接收消息"></a>接收消息</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 事件消费者</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EventConsumer</span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消费评论、点赞、关注事件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> record</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@KafkaListener(topics = &#123;&quot;partopic&quot;&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleMessage</span><span class="params">(ConsumerRecord record)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (record == <span class="literal">null</span> || record.value() == <span class="literal">null</span>) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;消息的内容为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(record.value());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="业务-点赞-关注消息通知"><a href="#业务-点赞-关注消息通知" class="headerlink" title="业务 点赞 关注消息通知"></a>业务 点赞 关注消息通知</h1><p>系统通知是一个很常见且必要的需求，当发生点赞、关注、评论操作的时候，系统就会给相应的用户发送通知。</p>
+<p>对于流量巨大的社交网站，系统通知的需求是非常庞大的，那如果只是和私信或者发帖功能一样单纯地用 Ajax 做个异步，显然是远远不够的。所以为了保证系统的性能，这里非常有必要使用消息队列（消息队列三大作用：解耦、异步、消峰），Echo 中选用的是 Kafka。</p>
+<p>整体来看就两个需求，发送系统通知和显示系统通知：</p>
+<p>1）发送系统通知：</p>
+<ul>
+<li>A 给 B 点赞，给 B 发送 点赞 类型的系统通知（<code>TOPIC_LIKE</code>）</li>
+<li>A 给 B 关注，给 B 发送 关注 类型的系统通知（<code>TOPIC_FOLLOW</code>）</li>
+<li>A 给 B 评论 ，给 B 发送 评论 类型的系统通知（<code>TOPIC_COMMNET</code>）</li>
+</ul>
+<p>整体逻辑就是，当发生比如点赞操作的时候，就会触发消息队列的点赞事件，然后消费者消费这个事件，具体的消费逻辑就是往系统通知表里面插入一条数据（系统通知也使用私信那张表 <code>message</code>，不过系统通知的 <code>from_id</code> 在代码里写死了为 1，表示是系统发送出来的，所以这也就是为什么说大家在部署的时候一定要注意在 user 表中事先存储一个 id &#x3D; 1 的用户）。</p>
+<p>2）显示系统通知：</p>
+<ul>
+<li>系统通知列表（显示点赞、评论、关注三种类型的通知）</li>
+<li>系统通知详情（分页显示某一类型所包含的系统通知）</li>
+<li>显示未读消息数量</li>
+</ul>
+<h2 id="依赖-1"><a href="#依赖-1" class="headerlink" title="依赖"></a>依赖</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--Kafka--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="properties-1"><a href="#properties-1" class="headerlink" title="properties"></a>properties</h2><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Kafka</span></span><br><span class="line"><span class="attr">spring.kafka.bootstrap-servers</span> = <span class="string">8.144.162.164:9092,8.144.162.164:9093</span></span><br><span class="line"><span class="comment"># 该字段见 Kafka 安装包中的 consumer.proerties，可自行修改, 修改完毕后需要重启 Kafka</span></span><br><span class="line"><span class="attr">spring.kafka.consumer.group-id</span> = <span class="string">test-consumer-group</span></span><br><span class="line"><span class="attr">spring.kafka.consumer.enable-auto-commit</span> = <span class="string">true</span></span><br><span class="line"><span class="attr">spring.kafka.consumer.auto-commit-interval</span> = <span class="string">3000</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="封装事件对象"><a href="#封装事件对象" class="headerlink" title="封装事件对象"></a>封装事件对象</h2><p>各位不妨想一想，消费者想要通过消费这个消息实现往数据库表 message 中插入一条记录的目的，那么这个消息或者说事件是不是就应该具备 message 表中的所有字段，或者说从消息中能够推出这些字段，对吧。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/PocakShgoGFsibzSibk9CDcBZKb4dhIQ9v71NiahibibWgH6wooYpktEsHtQCKWPLqDzRsOic8UqAzmfCicoegp05NC0g/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></p>
+<p>另外，Kafka 是发布订阅模型，一对多，消息以 Topic（主题）进行分类，生产者将消息发布到某个Topic 中，消费者可以订阅该 Topic。以点赞事件为例，看下图：</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/640" alt="图片"></p>
+<h2 id="封装Topic类型"><a href="#封装Topic类型" class="headerlink" title="封装Topic类型"></a>封装Topic类型</h2><p>Topic 的类型定义在CommunityConstant中</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/image-20220301191440249.png" alt="image-20220301191440249"></p>
+<h2 id="消息封装成事件模型"><a href="#消息封装成事件模型" class="headerlink" title="消息封装成事件模型"></a>消息封装成事件模型</h2><p>如此我们就可以封装成一个这样的事件模型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 封装事件（用于系统通知）</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Event</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String topic; <span class="comment">// 事件类型</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> userId; <span class="comment">// 事件由谁触发</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> entityType; <span class="comment">// 实体类型</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> entityId; <span class="comment">// 实体 id</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> entityUserId; <span class="comment">// 实体的作者(该通知发送给他）</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, Object&gt; data = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(); <span class="comment">// 存储未来可能需要用到的数据</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>元素介绍</p>
+<p>userId 和 entityType</p>
+<p>如果用户A给用户B点了赞 那么userId 就是A的id  </p>
+<p>系统是发送给B的  那么entityUserId就是B的Id    (对应的是message to_id)</p>
+<p>map 存储未来可能需要用到的数据 </p>
+<p>可以存储评论的对应的贴在id  (postId)</p>
+<h2 id="事件生产者"><a href="#事件生产者" class="headerlink" title="事件生产者"></a>事件生产者</h2><p>EventProducer</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.greate.community.event;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.entity.Event;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.kafka.core.KafkaTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 事件的生产者</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EventProducer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> KafkaTemplate kafkaTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 处理事件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> event</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fireEvent</span><span class="params">(Event event)</span> &#123;</span><br><span class="line">        <span class="comment">// 将事件发布到指定的主题</span></span><br><span class="line">        kafkaTemplate.send(event.getTopic(), JSONObject.toJSONString(event));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>service调用发送消息的方法即可</p>
+<p><img src="/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/image-20220302001757359.png" alt="image-20220302001757359"></p>
+<h2 id="事件消费者"><a href="#事件消费者" class="headerlink" title="事件消费者"></a>事件消费者</h2><p>事件消费者</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.entity.DiscussPost;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.entity.Event;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.entity.Message;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.service.DiscussPostService;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.service.ElasticsearchService;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.service.MessageService;</span><br><span class="line"><span class="keyword">import</span> com.greate.community.util.CommunityConstant;</span><br><span class="line"><span class="keyword">import</span> org.apache.kafka.clients.consumer.ConsumerRecord;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.kafka.annotation.KafkaListener;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 事件消费者</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EventConsumer</span> <span class="keyword">implements</span> <span class="title class_">CommunityConstant</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> LoggerFactory.getLogger(EventConsumer.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MessageService messageService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> DiscussPostService discussPostService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ElasticsearchService elasticsearchService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消费评论、点赞、关注事件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> record</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@KafkaListener(topics = &#123;TOPIC_COMMNET, TOPIC_LIKE, TOPIC_FOLLOW&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleMessage</span><span class="params">(ConsumerRecord record)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (record == <span class="literal">null</span> || record.value() == <span class="literal">null</span>) &#123;</span><br><span class="line">            logger.error(<span class="string">&quot;消息的内容为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">Event</span> <span class="variable">event</span> <span class="operator">=</span> JSONObject.parseObject(record.value().toString(), Event.class);</span><br><span class="line">        <span class="keyword">if</span> (event == <span class="literal">null</span>) &#123;</span><br><span class="line">            logger.error(<span class="string">&quot;消息格式错误&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发送系统通知</span></span><br><span class="line">        <span class="type">Message</span> <span class="variable">message</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Message</span>();</span><br><span class="line">        message.setFromId(SYSTEM_USER_ID);</span><br><span class="line">        message.setToId(event.getEntityUserId());</span><br><span class="line">        message.setConversationId(event.getTopic());</span><br><span class="line">        message.setCreateTime(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line"></span><br><span class="line">        Map&lt;String, Object&gt; content = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        content.put(<span class="string">&quot;userId&quot;</span>, event.getUserId());</span><br><span class="line">        content.put(<span class="string">&quot;entityType&quot;</span>, event.getEntityType());</span><br><span class="line">        content.put(<span class="string">&quot;entityId&quot;</span>, event.getEntityId());</span><br><span class="line">        <span class="keyword">if</span> (!event.getData().isEmpty()) &#123; <span class="comment">// 存储 Event 中的 Data</span></span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;String, Object&gt; entry : event.getData().entrySet()) &#123;</span><br><span class="line">                content.put(entry.getKey(), entry.getValue());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        message.setContent(JSONObject.toJSONString(content));</span><br><span class="line"></span><br><span class="line">        messageService.addMessage(message);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>消费者做的就是拿到消息之后 根据消息里面的数据 </p>
+<ol>
+<li>往数据表里添加一条数据</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 消费发帖事件</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@KafkaListener(topics = &#123;TOPIC_PUBLISH&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handlePublishMessage</span><span class="params">(ConsumerRecord record)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (record == <span class="literal">null</span> || record.value() == <span class="literal">null</span>) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;消息的内容为空&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">Event</span> <span class="variable">event</span> <span class="operator">=</span> JSONObject.parseObject(record.value().toString(), Event.class);</span><br><span class="line">    <span class="keyword">if</span> (event == <span class="literal">null</span>) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;消息格式错误&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">DiscussPost</span> <span class="variable">post</span> <span class="operator">=</span> discussPostService.findDiscussPostById(event.getEntityId());</span><br><span class="line">    elasticsearchService.saveDiscusspost(post);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 消费删帖事件</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@KafkaListener(topics = &#123;TOPIC_DELETE&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleDeleteMessage</span><span class="params">(ConsumerRecord record)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (record == <span class="literal">null</span> || record.value() == <span class="literal">null</span>) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;消息的内容为空&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">Event</span> <span class="variable">event</span> <span class="operator">=</span> JSONObject.parseObject(record.value().toString(), Event.class);</span><br><span class="line">    <span class="keyword">if</span> (event == <span class="literal">null</span>) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;消息格式错误&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    elasticsearchService.deleteDiscusspost(event.getEntityId());</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2021/06/02/Java/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97kafka/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/06/04/Java/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97RabbitMQ/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            RabbitMQ消息队列
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/06/01/Java/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">为什么使用消息队列</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

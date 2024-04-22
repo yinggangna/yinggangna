@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    数据分片，多线程处理 |  WangYingGangBlogs
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="WangYingGangBlogs" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java/数据分片-多线程处理/数据分片多线程处理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  数据分片，多线程处理
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/02/04/Java/%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86/%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86/" class="article-date">
+  <time datetime="2022-02-04T15:11:44.000Z" itemprop="datePublished">2022-02-04</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">10 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="数据分片，多线程处理"><a href="#数据分片，多线程处理" class="headerlink" title="数据分片，多线程处理"></a>数据分片，多线程处理</h1><p>场景：mysql有100w条数据，要根据id更新到Elasticsearch</p>
+<p>处理方式：100w 条数据分页查询，每次查询1w条数据，再将这1w条数据分成10个分片，每个分片1000条数据，每个分片的1000数据由一条线程去执行处理，相当于10个分片由10个线程处理。</p>
+<h2 id="线程池工具类"><a href="#线程池工具类" class="headerlink" title="线程池工具类"></a>线程池工具类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 线程池工具类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadUtil</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 线程池实例</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">ThreadPoolExecutor</span> <span class="variable">executor</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 核心线程数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Integer</span> <span class="variable">THREADPOOL_COREPOOLSIZE</span> <span class="operator">=</span> <span class="number">30</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 最大线程数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Integer</span> <span class="variable">THREADPOOL_MAXPOOLSIZE</span> <span class="operator">=</span> <span class="number">200</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 线程等待回收的存活时间，单位：分钟</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">THREADPOOL_KEEPALIVETIME</span> <span class="operator">=</span> <span class="number">10</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 初始化线程池</span></span><br><span class="line"><span class="comment">     * 线程池拒绝策略为默认的拒绝策略，如果不能加入工作队列就抛出RejectedExecutionException异常</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line"> </span><br><span class="line">        executor = <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(THREADPOOL_COREPOOLSIZE,</span><br><span class="line">                THREADPOOL_MAXPOOLSIZE,</span><br><span class="line">                THREADPOOL_KEEPALIVETIME,</span><br><span class="line">                TimeUnit.MINUTES,</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ArrayBlockingQueue</span>&lt;&gt;(<span class="number">80</span>),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">DefaultThreadFactory</span>(<span class="string">&quot;defaultPool&quot;</span>),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>.AbortPolicy());</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 使用线程池运行任务，线程无返回值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> task</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">(Runnable task)</span>&#123;</span><br><span class="line">        executor.execute(task);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 使用线程池提交异步任务，任务运行带返回值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> task 实现了Callable接口的线程</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Future <span class="title function_">submit</span><span class="params">(Callable task)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> executor.submit(task);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 停止线程池</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">shutdown</span><span class="params">()</span> &#123;</span><br><span class="line">        executor.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> ThreadPoolExecutor <span class="title function_">getExecutor</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="模拟测试数据"><a href="#模拟测试数据" class="headerlink" title="模拟测试数据"></a>模拟测试数据</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ListFactory</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; data;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">curPage</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">pageSize</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ListFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        String[] arr = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;9&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;4&quot;</span>&#125;;</span><br><span class="line">        <span class="built_in">this</span>.data = Arrays.asList(arr);</span><br><span class="line">        System.out.println(<span class="string">&quot;全部数据 &quot;</span> + <span class="built_in">this</span>.data);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">getNext</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">start</span> <span class="operator">=</span> curPage * pageSize;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//数据取完了</span></span><br><span class="line">        <span class="keyword">if</span> (start &gt; data.size()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">end</span> <span class="operator">=</span> Math.min((start + pageSize), data.size());</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//下一页</span></span><br><span class="line">        curPage++;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.data.subList(start, end);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getSize</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.data.size();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getCurPage</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.curPage;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ListFactory</span> <span class="variable">listFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ListFactory</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            List&lt;String&gt; data = listFactory.getNext();</span><br><span class="line">            System.out.println(data);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="执行的处理任务"><a href="#执行的处理任务" class="headerlink" title="执行的处理任务"></a>执行的处理任务</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MKTask</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;String&gt; items;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">cur</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MKTask</span><span class="params">(List&lt;String&gt; items)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.items = items;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; items.size(); j++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">//模拟业务处理耗时</span></span><br><span class="line">                <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> <span class="number">1</span> + (<span class="type">int</span>) (Math.random() * <span class="number">3</span>);</span><br><span class="line">                TimeUnit.SECONDS.sleep(s);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">this</span>.cur = j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getCur</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.cur + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="主线程分片"><a href="#主线程分片" class="headerlink" title="主线程分片"></a>主线程分片</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MultiThread</span> &#123;</span><br><span class="line">    List&lt;MKTask&gt; taskList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将任务切分，由多线程处理，并打印处理进度</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleAll</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">ListFactory</span> <span class="variable">listFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ListFactory</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">total</span> <span class="operator">=</span> listFactory.getSize();</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="comment">//获取翻页数据</span></span><br><span class="line">            List&lt;String&gt; data = listFactory.getNext();</span><br><span class="line">            <span class="comment">//模拟取数据耗时</span></span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span> (data == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line"> </span><br><span class="line">            <span class="comment">//每个线程处理 5 条</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">threadCount</span> <span class="operator">=</span> <span class="number">5</span>;</span><br><span class="line">            System.out.println(<span class="string">&quot;当前页&quot;</span> + listFactory.getCurPage());</span><br><span class="line">            handlePageDate(data, threadCount);</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//计算任务进度</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">            <span class="comment">//每2秒打印一次各个线程的处理进度</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (MKTask mkTask : taskList) &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">cur</span> <span class="operator">=</span> mkTask.getCur();</span><br><span class="line">                sum = sum + cur;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">DecimalFormat</span> <span class="variable">dF</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DecimalFormat</span>(<span class="string">&quot;0.00&quot;</span>);</span><br><span class="line">            <span class="type">float</span> <span class="variable">f</span> <span class="operator">=</span> (<span class="type">float</span>) sum / total;</span><br><span class="line"> </span><br><span class="line">            <span class="keyword">if</span> (f == <span class="number">1.0</span>) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;全部任务完成&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;任务处理进度 &quot;</span> + dF.format(f * <span class="number">100</span>) + <span class="string">&quot;%&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handlePageDate</span><span class="params">(List&lt;String&gt; data, <span class="type">int</span> threadCount)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">pageSize</span> <span class="operator">=</span> data.size();</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//分成 segment 份，需要 segment 个线程处理</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">segment</span> <span class="operator">=</span> (<span class="type">int</span>) Math.ceil((<span class="type">double</span>) pageSize / threadCount);</span><br><span class="line"> </span><br><span class="line">        System.out.println(<span class="string">&quot;当前页数据 &quot;</span> + data + <span class="string">&quot; 一共有 &quot;</span> + pageSize + <span class="string">&quot; 条, 每个线程处理 &quot;</span> + threadCount + <span class="string">&quot; 条数据, 需要 &quot;</span> + segment + <span class="string">&quot; 个线程处理&quot;</span>);</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; segment; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">start</span> <span class="operator">=</span> i * threadCount;</span><br><span class="line">            <span class="type">int</span> <span class="variable">end</span> <span class="operator">=</span> (i == segment - <span class="number">1</span>) ? pageSize : (start + threadCount);</span><br><span class="line"> </span><br><span class="line">            List&lt;String&gt; subList = data.subList(start, end);</span><br><span class="line">            <span class="type">MKTask</span> <span class="variable">mkTask</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MKTask</span>(subList);</span><br><span class="line">            taskList.add(mkTask);</span><br><span class="line">            System.out.println(start + <span class="string">&quot; - &quot;</span> + end + <span class="string">&quot; 范围数据 &quot;</span> + subList + <span class="string">&quot; 交给一条线程处理&quot;</span>);</span><br><span class="line">            ThreadUtil.execute(mkTask);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="执行结果"><a href="#执行结果" class="headerlink" title="执行结果"></a>执行结果</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">全部数据 <span class="selector-attr">[9, 1, 2, 1, 3, 5, 8, 3, 9, 6, 8, 7, 5, 5, 1, 1, 5, 4, 9, 4, 2, 7, 8, 8, 5, 1, 4, 3, 8, 1, 2, 4, 2, 4, 4, 8, 8, 4, 4, 5, 3, 3, 6, 4, 7, 6, 5, 4, 1, 8, 4, 3, 6, 7, 7, 4, 5, 3, 9, 9, 5, 5, 6, 1, 4, 1, 9, 3, 5, 1, 1, 7, 9, 4, 9, 2, 8, 7, 6, 6, 4, 1, 6, 6, 9, 1, 5, 2, 1, 1, 8, 1, 6, 3, 1, 8, 4]</span></span><br><span class="line">当前页<span class="number">1</span></span><br><span class="line">当前页数据 <span class="selector-attr">[9, 1, 2, 1, 3, 5, 8, 3, 9, 6, 8, 7, 5, 5, 1, 1, 5, 4, 9, 4]</span> 一共有 <span class="number">20</span> 条, 每个线程处理 <span class="number">5</span> 条数据, 需要 <span class="number">4</span> 个线程处理</span><br><span class="line"><span class="number">0</span> - <span class="number">5</span> 范围数据 <span class="selector-attr">[9, 1, 2, 1, 3]</span> 交给一条线程处理</span><br><span class="line"><span class="number">5</span> - <span class="number">10</span> 范围数据 <span class="selector-attr">[5, 8, 3, 9, 6]</span> 交给一条线程处理</span><br><span class="line"><span class="number">10</span> - <span class="number">15</span> 范围数据 <span class="selector-attr">[8, 7, 5, 5, 1]</span> 交给一条线程处理</span><br><span class="line"><span class="number">15</span> - <span class="number">20</span> 范围数据 <span class="selector-attr">[1, 5, 4, 9, 4]</span> 交给一条线程处理</span><br><span class="line">当前页<span class="number">2</span></span><br><span class="line">当前页数据 <span class="selector-attr">[2, 7, 8, 8, 5, 1, 4, 3, 8, 1, 2, 4, 2, 4, 4, 8, 8, 4, 4, 5]</span> 一共有 <span class="number">20</span> 条, 每个线程处理 <span class="number">5</span> 条数据, 需要 <span class="number">4</span> 个线程处理</span><br><span class="line"><span class="number">0</span> - <span class="number">5</span> 范围数据 <span class="selector-attr">[2, 7, 8, 8, 5]</span> 交给一条线程处理</span><br><span class="line"><span class="number">5</span> - <span class="number">10</span> 范围数据 <span class="selector-attr">[1, 4, 3, 8, 1]</span> 交给一条线程处理</span><br><span class="line"><span class="number">10</span> - <span class="number">15</span> 范围数据 <span class="selector-attr">[2, 4, 2, 4, 4]</span> 交给一条线程处理</span><br><span class="line"><span class="number">15</span> - <span class="number">20</span> 范围数据 <span class="selector-attr">[8, 8, 4, 4, 5]</span> 交给一条线程处理</span><br><span class="line">当前页<span class="number">3</span></span><br><span class="line">当前页数据 <span class="selector-attr">[3, 3, 6, 4, 7, 6, 5, 4, 1, 8, 4, 3, 6, 7, 7, 4, 5, 3, 9, 9]</span> 一共有 <span class="number">20</span> 条, 每个线程处理 <span class="number">5</span> 条数据, 需要 <span class="number">4</span> 个线程处理</span><br><span class="line"><span class="number">0</span> - <span class="number">5</span> 范围数据 <span class="selector-attr">[3, 3, 6, 4, 7]</span> 交给一条线程处理</span><br><span class="line"><span class="number">5</span> - <span class="number">10</span> 范围数据 <span class="selector-attr">[6, 5, 4, 1, 8]</span> 交给一条线程处理</span><br><span class="line"><span class="number">10</span> - <span class="number">15</span> 范围数据 <span class="selector-attr">[4, 3, 6, 7, 7]</span> 交给一条线程处理</span><br><span class="line"><span class="number">15</span> - <span class="number">20</span> 范围数据 <span class="selector-attr">[4, 5, 3, 9, 9]</span> 交给一条线程处理</span><br><span class="line">当前页<span class="number">4</span></span><br><span class="line">当前页数据 <span class="selector-attr">[5, 5, 6, 1, 4, 1, 9, 3, 5, 1, 1, 7, 9, 4, 9, 2, 8, 7, 6, 6]</span> 一共有 <span class="number">20</span> 条, 每个线程处理 <span class="number">5</span> 条数据, 需要 <span class="number">4</span> 个线程处理</span><br><span class="line"><span class="number">0</span> - <span class="number">5</span> 范围数据 <span class="selector-attr">[5, 5, 6, 1, 4]</span> 交给一条线程处理</span><br><span class="line"><span class="number">5</span> - <span class="number">10</span> 范围数据 <span class="selector-attr">[1, 9, 3, 5, 1]</span> 交给一条线程处理</span><br><span class="line"><span class="number">10</span> - <span class="number">15</span> 范围数据 <span class="selector-attr">[1, 7, 9, 4, 9]</span> 交给一条线程处理</span><br><span class="line"><span class="number">15</span> - <span class="number">20</span> 范围数据 <span class="selector-attr">[2, 8, 7, 6, 6]</span> 交给一条线程处理</span><br><span class="line">当前页<span class="number">5</span></span><br><span class="line">当前页数据 <span class="selector-attr">[4, 1, 6, 6, 9, 1, 5, 2, 1, 1, 8, 1, 6, 3, 1, 8, 4]</span> 一共有 <span class="number">17</span> 条, 每个线程处理 <span class="number">5</span> 条数据, 需要 <span class="number">4</span> 个线程处理</span><br><span class="line"><span class="number">0</span> - <span class="number">5</span> 范围数据 <span class="selector-attr">[4, 1, 6, 6, 9]</span> 交给一条线程处理</span><br><span class="line"><span class="number">5</span> - <span class="number">10</span> 范围数据 <span class="selector-attr">[1, 5, 2, 1, 1]</span> 交给一条线程处理</span><br><span class="line"><span class="number">10</span> - <span class="number">15</span> 范围数据 <span class="selector-attr">[8, 1, 6, 3, 1]</span> 交给一条线程处理</span><br><span class="line"><span class="number">15</span> - <span class="number">17</span> 范围数据 <span class="selector-attr">[8, 4]</span> 交给一条线程处理</span><br><span class="line">任务处理进度 <span class="number">48.45%</span></span><br><span class="line">任务处理进度 <span class="number">70.10%</span></span><br><span class="line">任务处理进度 <span class="number">87.63%</span></span><br><span class="line">任务处理进度 <span class="number">96.91%</span></span><br><span class="line">全部任务完成</span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://cardioid.gitee.io/2022/02/04/Java/%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86/%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/02/11/Java/IDEA/IDEA%E6%8F%92%E4%BB%B6/IDEA%E6%8F%92%E4%BB%B6/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            IDEA插件
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/01/11/Java/%E7%BC%93%E5%AD%98/SpringCache/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Spring Cache</div>
+      </a>
+    
+  </nav>
+
+  
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2018-2024
+        <i class="ri-heart-fill heart_icon"></i> WangYingGangBlogs
+      </li>
+    </ul>
+    
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="WangYingGangBlogs"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/1.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/2.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1501139180&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>
