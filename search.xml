@@ -4541,7 +4541,7 @@ flush privileges;
   </entry>
   <entry>
     <title>周会分享</title>
-    <url>/2024/04/24/OPPO/OPPO/</url>
+    <url>/2024/04/24/Java/OPPO/OPPO/</url>
     <content><![CDATA[<h1 id="周会分享"><a href="#周会分享" class="headerlink" title="周会分享"></a>周会分享</h1><h2 id="1-架构"><a href="#1-架构" class="headerlink" title="1.架构"></a>1.架构</h2><p>DDD 是一种思想，落地的形态和结构会有不同的方式，甚至在编码上也会有风格的差异。但终期目标就一个；”提供代码的可维护性，降低迭代开发成本。“也是康威定律所说：”任何组织在设计一套系统时，所交付的设计方案在结构上都与该组织的沟通结构保持一致。“</p>
 <h3 id="一、问题碰撞"><a href="#一、问题碰撞" class="headerlink" title="一、问题碰撞"></a>一、问题碰撞</h3><p><code>你用 MVC 写代码，遇到过最大的问题是什么？</code>🤔</p>
 <p>简单、容易、好理解，是 MVC 架构的特点，但也正因为简单的分层逻辑，在适配较复杂的场景并且需要长周期的维护时，代码的迭代成本就会越来越高。如图；</p>
