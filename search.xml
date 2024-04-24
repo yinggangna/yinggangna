@@ -1,24 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Hello World</title>
-    <url>/2024/04/23/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-  </entry>
-  <entry>
     <title>lambda 表达式</title>
     <url>/2021/09/22/Java/1.8%E6%96%B0%E7%89%B9%E6%80%A7lambda/lambda%20%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
     <content><![CDATA[<h2 id="java-lambda-表达式中的双冒号的用法"><a href="#java-lambda-表达式中的双冒号的用法" class="headerlink" title="java lambda 表达式中的双冒号的用法"></a>java lambda 表达式中的双冒号的用法</h2><p><strong>类名::方法名</strong></p>
@@ -4555,6 +4537,411 @@ flush privileges;
       </categories>
       <tags>
         <tag>代码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>周会分享</title>
+    <url>/2024/04/24/OPPO/OPPO/</url>
+    <content><![CDATA[<h1 id="周会分享"><a href="#周会分享" class="headerlink" title="周会分享"></a>周会分享</h1><h2 id="1-架构"><a href="#1-架构" class="headerlink" title="1.架构"></a>1.架构</h2><p>DDD 是一种思想，落地的形态和结构会有不同的方式，甚至在编码上也会有风格的差异。但终期目标就一个；”提供代码的可维护性，降低迭代开发成本。“也是康威定律所说：”任何组织在设计一套系统时，所交付的设计方案在结构上都与该组织的沟通结构保持一致。“</p>
+<h3 id="一、问题碰撞"><a href="#一、问题碰撞" class="headerlink" title="一、问题碰撞"></a>一、问题碰撞</h3><p><code>你用 MVC 写代码，遇到过最大的问题是什么？</code>🤔</p>
+<p>简单、容易、好理解，是 MVC 架构的特点，但也正因为简单的分层逻辑，在适配较复杂的场景并且需要长周期的维护时，代码的迭代成本就会越来越高。如图；</p>
+<p><img src="https://bugstack.cn/images/roadmap/tutorial/road-map-230624-01.png?raw=true" alt="img"></p>
+<ul>
+<li>如果你接触过较大型且已经长期维护项目的 MVC 架构，你就会发现这里的 DAO、PO、VO 对象，在 Service 层相互调用。那么长期开发后，就导致了各个 PO 里的属性字段数量都被撑的特别大。这样的开发方式，将<code>”状态”</code>、<code>“行为“</code>分离到不同的对象中，代码的意图渐渐模糊，膨胀、臃肿和不稳定的架构，让迭代成本增加。随着系统工程的长期迭代，贫血对象开始被众多 serivice 交叉使用，而 service 服务也是相互调用。这样缺少一个上下文关系的开发方式，让长期迭代的 MVC 工程逐步腐化到严重腐化。</li>
+<li>而 DDD 架构首先以解决此类问题为主，将各个属于自己领域范围内的行为和逻辑封装到自己的领域包下处理。这也是 DDD 架构设计的精髓之一。它希望在分治层面合理切割问题空间为更小规模的若干子问题，而问题越小就容易被理解和处理，做到高内聚低耦合。这也是康威定律所提到的，解决复杂场景的设计主要分为：分治、抽象和知识。</li>
+</ul>
+<p><strong>MVC 工程的腐化根本</strong>，就在于对象、服务、组件的交叉混乱使用。时间越长，腐化的越严重。</p>
+<p><img src="https://bugstack.cn/images/roadmap/tutorial/road-map-ddd-02.png?raw=true" alt="img"></p>
+<p>在 MVC 的分层结构就像家里所有人的衣服放一个大衣柜、所有人的裤子放一个大库柜。衣服裤子(对象)，很少的时候很节省空间，<strong>因为你的裤子别人可能也拿去穿，复用一下开发速度很快</strong>。但时间一长，就越来越乱了。🤨 一条裤子被加肥加大，所有人都穿。</p>
+<p>而 DDD 架构的模型分层，则是以人为视角，<strong>一个人就是一个领域，一个领域内包括他所需的衣服、裤子、袜子、鞋子</strong>。虽然刚开始有点浪费空间，但随着软件的长周期发展，后续的维护成本就会降低。</p>
+<h3 id="二、简化理解"><a href="#二、简化理解" class="headerlink" title="二、简化理解"></a>二、简化理解</h3><p>在给大家讲解 MVC 架构的时候，提到了一个简单的开发模型。开发代码可以理解为：<code>“定义属性 -&gt; 创建方法 -&gt; 调用展示”</code>但这个模型结构过于简单，不太适合运用了各类分布式技术栈以及更多逻辑的 DDD 架构。所以在 DDD 这里，我们把开发代码可以抽象为：<code>“触发 -&gt; 函数 -&gt; 连接”</code> 如图；</p>
+<p><img src="https://bugstack.cn/images/roadmap/tutorial/road-map-230624-02.png?raw=true" alt="img"></p>
+<ul>
+<li>DDD 架构常用于微服务场景，因此也一个系统的调用方式就不只是 HTTP 还包括；<code>RPC 远程</code>、<code>MQ 消息</code>、<code>TASK 任务</code>，因此这些种方式都可以理解为触发。</li>
+<li>通过触发调用函数方法，我们这里可以把各个服务都当成一个函数方法来看。</li>
+<li>而函数方法通过连接，调用到其他的接口、数据库、缓存来完成函数逻辑。</li>
+</ul>
+<p>接下来，在带着大家把这些所需的模块，拆分到对应的DDD系统架构中。</p>
+<h3 id="三、架构分层"><a href="#三、架构分层" class="headerlink" title="三、架构分层"></a>三、架构分层</h3><p>如下是 DDD 架构的一种分层结构，也可以有其他种方式，核心的重点在于适合你所在场景的业务开发。以下的分层结构，是在使用 DDD 架构多种的方式开发代码后，做了简化和处理的。右侧的连线是各个模块的依赖关系。接下来就给大家做一下模块的介绍。</p>
+<p><img src="https://bugstack.cn/images/roadmap/tutorial/road-map-230624-03.png?raw=true" alt="img"></p>
+<ul>
+<li><strong>接口定义 - xfg-frame-api</strong>：因为微服务中引用的 RPC 需要对外提供接口的描述信息，也就是调用方在使用的时候，需要引入 Jar 包，让调用方好能依赖接口的定义做代理。</li>
+<li><strong>应用封装 - xfg-frame-app</strong>：这是应用启动和配置的一层，如一些 aop 切面或者 config 配置，以及打包镜像都是在这一层处理。你可以把它理解为专门为了启动服务而存在的。</li>
+<li><strong>领域封装 - xfg-frame-domain</strong>：领域模型服务，是一个非常重要的模块。无论怎么做DDD的分层架构，domain 都是肯定存在的。在一层中会有一个个细分的领域服务，在每个服务包中会有【模型、仓库、服务】这样3部分。</li>
+<li><strong>仓储服务 - xfg-frame-infrastructure</strong>：基础层依赖于 domain 领域层，因为在 domain 层定义了仓储接口需要在基础层实现。这是依赖倒置的一种设计方式。</li>
+<li><strong>领域封装 - xfg-frame-trigger</strong>：触发器层，一般也被叫做 adapter 适配器层。用于提供接口实现、消息接收、任务执行等。所以对于这样的操作，把它叫做触发器层。</li>
+<li><strong>类型定义 - xfg-frame-types</strong>：通用类型定义层，在我们的系统开发中，会有很多类型的定义，包括；基本的 Response、Constants 和枚举。它会被其他的层进行引用使用。</li>
+<li><strong>领域编排【可选】 - xfg-frame-case</strong>：领域编排层，一般对于较大且复杂的的项目，为了更好的防腐和提供通用的服务，一般会添加 case&#x2F;application 层，用于对 domain 领域的逻辑进行封装组合处理。</li>
+</ul>
+<h3 id="四、领域分层"><a href="#四、领域分层" class="headerlink" title="四、领域分层"></a>四、领域分层</h3><p>DDD 领域驱动设计的中心，主要在于领域模型的设计，以领域所需驱动功能实现和数据建模。一个领域服务下面会有多个领域模型，每个领域模型都是一个充血结构。<strong>一个领域模型 &#x3D; 一个充血结构</strong></p>
+<p><img src="https://bugstack.cn/images/roadmap/tutorial/roadmap-ddd-01.png?raw=true" alt="img"></p>
+<ul>
+<li><p>model 模型对象；</p>
+<ul>
+<li>aggreate：聚合对象，实体对象、值对象的协同组织，就是聚合对象。</li>
+<li>entity：实体对象，大多数情况下，实体对象(Entity)与数据库持久化对象(PO)是1v1的关系，但也有为了封装一些属性信息，会出现1vn的关系。</li>
+<li>valobj：值对象，通过对象属性值来识别的对象</li>
+</ul>
+</li>
+<li><p>repository 仓储服务；从数据库等数据源中获取数据，传递的对象可以是聚合对象、实体对象，返回的结果可以是；实体对象、值对象。因为仓储服务是由基础层(infrastructure) 引用领域层(domain)，是一种依赖倒置的结构，但它可以天然的隔离PO数据库持久化对象被引用。</p>
+</li>
+<li><p>service 服务设计；这里要注意，不要以为定义了聚合对象，就把超越1个对象以外的逻辑，都封装到聚合中，这会让你的代码后期越来越难维护。</p>
+<p>聚合更应该注重的是和本对象相关的单一简单封装场景，而把一些重核心业务方到 service 里实现。</p>
+<p><strong>此外；如果你的设计模式应用不佳，那么无论是领域驱动设计、测试驱动设计还是换了三层和四层架构，你的工程质量依然会非常差。</strong></p>
+</li>
+<li><p>对象解释</p>
+<ul>
+<li>DTO 数据传输对象 (data transfer object)，DAO与业务对象或数据访问对象的区别是：DTO的数据的变异子与访问子（mutator和accessor）、语法分析（parser）、序列化（serializer）时不会有任何存储、获取、序列化和反序列化的异常。即DTO是简单对象，不含任何业务逻辑，但可包含序列化和反序列化以用于传输数据。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-代码"><a href="#2-代码" class="headerlink" title="2.代码"></a>2.代码</h2><p>“写代码”有俩个维度：<strong>正确性和可维护性</strong>，把代码写对，是每一个程序员的必备技能，能够把代码写的<strong>具有可维护性</strong>，这是一个程序员从业务迈向职业的第一步。(这句话另一位C++大佬也说过类似的：写给机器读得懂的代码不是本事，要能写出人能读得懂的代码。)</p>
+<p>关于如何写出可维护性的代码，有很多经典书籍，比如&lt;&lt;程序设计实践 &gt;&gt;、&lt;&lt;代码整洁之道&gt;&gt;、&lt;&lt;重构&gt;&gt;等，但是都无法避免一个无情的事实:<strong>程序员们大多会认同这些书上的观点，但是每个人对于这些观点的理解却是千差万别的</strong>。</p>
+<p>比如书上说”命名是要有意义的”，或许很多人只是觉得不用”abc”这种命名就是有意义，但是命名有意义远不止如此，比如代码中常用的”Info”、”Data”、”Manager”等都可能是没有意义的，都是反面代码。这些反面代码，在&lt;&lt;重构&gt;&gt;这本书中，起了一个名字，叫做**代码的坏味道(Bad Smell)**。</p>
+<p>对于代码中的坏味道，往往是很难发现的，因为它们不像代码Bug这么容易发现，所以郑老师就以代码中的坏味道来说，说如何发现代码中常见的坏味道，以及如何解决。</p>
+<p>这里有一份总结，也叫做”<strong>坏味道自查表</strong>“，后面内容会每项单独分析，总结如下：</p>
+<ul>
+<li>命名：</li>
+</ul>
+<ol>
+<li>命名是否具有业务含义；</li>
+<li>命名是否符合英语语法；</li>
+</ol>
+<ul>
+<li>函数：</li>
+</ul>
+<ol>
+<li>代码行是否超过__行；</li>
+<li>参数列表是否超过__个；</li>
+</ol>
+<ul>
+<li>类</li>
+</ul>
+<ol>
+<li>类的字段是否超过__个；</li>
+<li>类之间的依赖关系是否符合架构规则；</li>
+</ol>
+<ul>
+<li>语句</li>
+</ul>
+<ol>
+<li>是否使用for循环；</li>
+<li>是否使用else；</li>
+<li>是否有重复的switch;</li>
+<li>一行代码中是否了连续的方法调用；</li>
+<li>代码中是否出现了setter；</li>
+<li>变量声明之后是否有立即再赋值；</li>
+<li>集合声明之后是否有立即添加元素；</li>
+<li>返回值是否可以使用Optional；</li>
+</ol>
+<p>上面的每一个部分，后面会详细说明为什么是坏味道，以及如何来修改。</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2><h3 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h3><p>有一句叫做”<strong>当你开始思考命名时，就说明你在进阶了</strong>“，前面说了命名的最基本原则就是要有意义，那什么样子的命名是无意义的，是坏味道呢？下面列举几种坏味道的命名。</p>
+<h4 id="不精准的命名"><a href="#不精准的命名" class="headerlink" title="不精准的命名"></a>不精准的命名</h4><p>看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">processChapter</span><span class="params">(<span class="type">long</span> chapterId)</span> &#123;</span><br><span class="line">  <span class="type">Chapter</span> <span class="variable">chapter</span> <span class="operator">=</span> <span class="built_in">this</span>.repository.findByChapterId(chapterId);</span><br><span class="line">  <span class="keyword">if</span> (chapter == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;Unknown chapter [&quot;</span> + chapterId + <span class="string">&quot;]&quot;</span>);  </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  chapter.setTranslationState(TranslationState.TRANSLATING);</span><br><span class="line">  <span class="built_in">this</span>.repository.save(chapter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码看起来没有问题，通过阅读代码，我们知道该方法信息：方法名为processChapter即处理章节，传递进来一个章节Id，在方法内部先从repository中获取章节Chapter，然后修改其翻译状态为TRANSLATING(翻译中)，最后再进行保存。</p>
+<p>这个方法问题是出在方法名processChapter(处理章节)上，这个方法确实是在处理章节，但是这个名字<strong>太过宽泛</strong>，这里把”章节状态设置为翻译中”叫做处理章节，那么把”章节状态设置为翻译完”、”修改章节内容”等操作是不是都可以叫做处理章节，即如果很多场景都能够叫做处理章节，那么处理章节就<strong>是一个过于宽泛的名字，没有错，但是不精准</strong>。</p>
+<p>这是一种典型的命名坏味道，表明来看名字是有意义的，但是不能有效地反映这段代码的含义，必须花时间和精力去阅读其中的具体逻辑，这也是部分代码难以阅读的根源。</p>
+<p>类似的不精准的命名我们常用的词有:data、info、flag、process、handle、build、maintain、manage、modify等，这些过于宽泛的名字很多时候都是因为在写代码的时候没有想好，就开始写代码了。</p>
+<p>那如何修改呢？首先，<strong>命名要能描述这段代码在做的事情</strong>，比如前面代码做的事情是把”将章节改成翻译中”，那方法名是否应该叫做changeChapterToTranslating呢？</p>
+<p>不可否认，相比于processChapter，这个名字确实有进步，但是它还不算是一个好名字，因为它更多是在描述这段代码在做的细节。<strong>我们之所以要将一段代码封装起来，一个重要原因就是我们不想知道那么多细节，如果把细节平铺开来，那本质上和直接阅读代码细节差别并不大</strong>。</p>
+<p>所以，<strong>一个好的名字应该描述意图，而非细节</strong>。</p>
+<p>就这段代码而言，为什么要把翻译状态设置为翻译中，了解了业务后，这是因为在这里开启了一个翻译的过程，所以这段代码更应该命名为<strong>startTranslation</strong>:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">startTranslation</span><span class="params">(<span class="type">long</span> chapterId)</span> &#123;</span><br><span class="line">  <span class="type">Chapter</span> <span class="variable">chapter</span> <span class="operator">=</span> <span class="built_in">this</span>.repository.findByChapterId(chapterId);</span><br><span class="line">  <span class="keyword">if</span> (chapter == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;Unknown chapter [&quot;</span> + chapterId + <span class="string">&quot;]&quot;</span>); </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  chapter.setTranslationState(TranslationState.TRANSLATING);</span><br><span class="line">  <span class="built_in">this</span>.repository.save(chapter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="用技术术语命名"><a href="#用技术术语命名" class="headerlink" title="用技术术语命名"></a>用技术术语命名</h4><p>我们接着来看一段代码：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line">List&lt;Book&gt; <span class="attr">bookList</span> = service.getBooks()<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以说这是一段常见得不能再常见的代码了，但是这段代码却隐藏了一个典型问题：<strong>用技术术语命名</strong>。</p>
+<p>这个bookList变量之所以叫做bookList，原因是它声明的类型是List，这种命名随处可见，比如xxxMap、xxxSet等。</p>
+<p>这是一种<strong>不费脑子的命名方式</strong>，但是这种命名会带来很多问题，<strong>因为它是一种基于实现细节的命名方式</strong>。</p>
+<p>编程有一个重要的原则是<strong>面向接口编程</strong>，这个原则从另一个角度理解，就是<strong>不要面向实现编程，因为接口是稳定的，而实现是易变的</strong>。大多数人理解是，这个原则是针对类型的，但是在命名上，也应该遵循这个原则。</p>
+<p>为什么呢？比如我发现现在需要的是一个不重复的作品集和，也就是说这个变量的类型从List改成Set，变量类型很容易改，但是所有的变量名都能确保都改好吗？假如漏了一个，就会出现一个叫做bookList的变量，它的类型是一个Set。</p>
+<p>和前面一样，我们需要一个更面向意图的名字，比如这段代码我们就是想拿到一堆书，所以直接命名为books：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line">List&lt;Book&gt; <span class="attr">books</span> = service.getBooks()<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>这是发现，这种更表意的名字，是一个更有效的名字。</p>
+<p>还有一种，事实上，在实际的代码中，<strong>技术名称的出现，往往就代表着它缺少了一个应用的模型</strong>。</p>
+<p>比如，在业务代码中直接出现了<strong>Redis</strong>这种技术名词，就说明缺少一个中间层来充当模型，比如下面代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Book <span class="title function_">getByIsbn</span><span class="params">(String isbn)</span> &#123;</span><br><span class="line">  <span class="type">Book</span> <span class="variable">cachedBook</span> <span class="operator">=</span> redisBookStore.get(isbn);</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> book;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一段业务代码，但是出现了Redis，通常来说，业务需求是从缓存获取一个数据，而Redis则是一种实现而已，我们可以增加一个模型cache，如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Book <span class="title function_">getByIsbn</span><span class="params">(String isbn)</span> &#123;</span><br><span class="line">  <span class="type">Book</span> <span class="variable">cachedBook</span> <span class="operator">=</span> cache.get(isbn);</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> book;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种情况下，至于具体缓存是如何实现的，在业务层我们不用关注。</p>
+<p>程序员之所以喜欢用技术名称去命名，一个重要原因是在学习写代码时，很大程序参考了别人代码，而行业优秀的代码往往是一些开源项目，<strong>在一个技术类的项目中，这些技术术语就是它的业务语言，但是对于业务项目，这个说法就必须重新审视了</strong>。</p>
+<h4 id="用业务语言写代码"><a href="#用业务语言写代码" class="headerlink" title="用业务语言写代码"></a>用业务语言写代码</h4><p>不论是不精准的命名，还是技术名称命名，归根结底是一个问题：<strong>对业务理解不到位</strong>。</p>
+<p><strong>想编写可维护的代码，必须要使用业务语言</strong>。从团队的角度看，让每个人根据自己的理解来命名，确实会出现千奇百怪的名字，所以一个良好的团队实践是<strong>建立团队的词汇表</strong>，让团队成员有信息可以参考。</p>
+<p>对于业务语言理解导致的坏味道，就比较难以发现，比如下面方法声明：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">approveChapter</span><span class="params">(<span class="type">long</span> chapterId, <span class="type">long</span> userId)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法的意图是<strong>确定章节内容审核通过</strong>，这里有一个问题，</p>
+<p>chapterId是审核章节的ID，这个没问题，</p>
+<p>但是这个userId是什么呢？通过了解背景，我们知道，这个userId是审核人的userId，因为在审核时需要记录审核人信息。</p>
+<p>通过业务分析，我们会发现这个userId并不是一个好的命名，因为<strong>需要更多的了解才知道这个命名的含义</strong>，所以这里更好的命名是<strong>审核人的Userid</strong>，即可以修改为reviewerUserId:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java</span><br><span class="line">复制代码<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">approveChapter</span><span class="params">(<span class="type">long</span> chapterId, <span class="type">long</span> reviewerUserId)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种必须了解业务才能发现的坏味道，需要我们在写代码时，清晰地明白业务流程，这样不仅可以消除坏味道，还可以写出更容易维护地代码。</p>
+<h4 id="乱用英语"><a href="#乱用英语" class="headerlink" title="乱用英语"></a>乱用英语</h4><p><strong>英语是程序员绕不开的一个槛</strong>，抛去本篇文章的主题，英语也是广大程序员必须要去学习的，因为只有真正去阅读英语文档或者一些API的英语注释，才能确保最高保真理解其含义，而不是直接查看通过翻译软件翻译出来的可能失真的文档</p>
+<p>继续本篇文章的主题，现在主流的语言都是以英语为基础的，所以想成为一个优秀的程序员，必须要会用英语。这里不要求程序员的英语有多好，但<strong>最低限度的要求是写出来的代码要像是在用英语表达</strong>。</p>
+<p>对于拼音和中文编程，现在的语言都是支持的，这些一眼就能看出的坏味道，本篇文章不做讨论，我们讨论几种不易发现的坏味道。</p>
+<h4 id="违反语法规则的命名"><a href="#违反语法规则的命名" class="headerlink" title="违反语法规则的命名"></a>违反语法规则的命名</h4><p>还是看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">completedTranslate</span><span class="params">(<span class="keyword">final</span> List&lt;ChapterId&gt; chapterIds)</span> &#123;</span><br><span class="line">  List&lt;Chapter&gt; chapters = repository.findByChapterIdIn(chapterIds);</span><br><span class="line">  chapters.forEach(Chapter::completedTranslate);</span><br><span class="line">  repository.saveAll(chapters); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码看起来没啥问题，就是把一些章节的信息标记为翻译完成，但是仔细发现这里的方法名为completedTranslate，或许作者想表达”完成翻译”这个意图，所以完成还用了完成时的completed，翻译使用<strong>translate</strong>，但是这个名字还是起错了。</p>
+<p>一般来说，常见的命名规则是：<strong>类名是一个名词，表示一个对象，而方法名则是一个动词，或者是动宾短语，表示一个动作</strong>。</p>
+<p>我们以这个为标准，completedTranslate就不是一个合格的动宾结构，这里我们只需要把完成改成complete，翻译改成名称形式即translation即可，所以修改后方法名为completeTranslation:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">completeTranslation</span><span class="params">(<span class="keyword">final</span> List&lt;ChapterId&gt; chapterIds)</span> &#123;</span><br><span class="line">  List&lt;Chapter&gt; chapters = repository.findByChapterIdIn(chapterIds);</span><br><span class="line">  chapters.forEach(Chapter::completeTranslation);</span><br><span class="line">  repository.saveAll(chapters); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这不是一个难以察觉的坏味道，而且经常在我们代码里出现，这里需要上面的命名规则即可。</p>
+<h4 id="不准确的英语词汇"><a href="#不准确的英语词汇" class="headerlink" title="不准确的英语词汇"></a>不准确的英语词汇</h4><p>比如下面代码，定义了枚举，来标识章节的<strong>审核状态</strong>：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">ChapterAuditStatus</span> &#123;</span><br><span class="line">    PENDING,</span><br><span class="line">    APPROVED,</span><br><span class="line">    REJECTED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的命名或许看不出问题，因为把**”审核”<strong>这个单词放入翻译查询，确实会得到</strong>audit<strong>这个单词，但是同样是审核，在其他地方却有使用</strong>review**这个单词，这就造成了不一致的问题。</p>
+<p>造成这个问题的原因是，直接在翻译软件上，”审核”翻译为audit和review都有，而由于中英文的表达差异也没有太多人去理解。这里想统一，<strong>就需要真正结合业务去理解每个单词真正的偏重点</strong>，</p>
+<p>audit：经过搜索可以发现audit有更官方的味道，类似翻译是审计，</p>
+<p>review：而review则更多是审查的意思，所以review更合适，上面代码就改成了：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">ChapterReviewStatus</span> &#123;</span><br><span class="line">    PENDING,</span><br><span class="line">    APPROVED,</span><br><span class="line">    REJECTED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>相比之下，这种坏味道就是一种高级的坏味道，英语单词用的不准确确实是中国程序员的一个短板。<strong>在这种情况下，最好的解决方案是建立起一个业务词汇表，千万不要臆想</strong>。</p>
+<p>建立业务词汇表的关键点就是<strong>用集体智慧，而非个体智慧，找到业务合适的通用语言</strong>，比如上面涉及章节审核的相关词汇，可以总结为词汇表：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>英文</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>作品</td>
+<td>Book</td>
+<td>作者创造的作品</td>
+</tr>
+<tr>
+<td>章节</td>
+<td>Chapter</td>
+<td>作品的一部分</td>
+</tr>
+<tr>
+<td>审核</td>
+<td>review</td>
+<td>审核方对作品内容进行查看的过程</td>
+</tr>
+<tr>
+<td>审核通过</td>
+<td>approve</td>
+<td>审核方对作品内容给予通过</td>
+</tr>
+<tr>
+<td>审核未通过</td>
+<td>reject</td>
+<td>审核方对作品内容给予不通过</td>
+</tr>
+</tbody></table>
+<p>有了这种业务词汇表，以后小组内的程序员再也不用纠结命名了。</p>
+<h4 id="英语单词的拼写错误"><a href="#英语单词的拼写错误" class="headerlink" title="英语单词的拼写错误"></a>英语单词的拼写错误</h4><p>一般来说，英语单词的拼写错误在IDE中都会有提醒，但是这里必须要注意一种特殊情况，就是把一个单词拼错误成了另一个单词。</p>
+<p>比如下面代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">QuerySort</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SortBy sortBy;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SortFiled sortFiled;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的sortFiled本来是想表达”排序的字段”意思，但是把Field拼写成了Filed，就容易让人理解为”排序文件”这种迷惑的意思，所以单词拼写错误一定要注意。</p>
+<p>对于英语能力的提高，无他，<strong>只有强迫自己练习和总结</strong>，把常见的单词记忆，多看看优秀的开源项目，相比于完全掌握英语，掌握编程中涉及的英语还是要容易点。</p>
+<h3 id="去除重复"><a href="#去除重复" class="headerlink" title="去除重复"></a>去除重复</h3><p>重复是一个泥潭，对于程序员来说，要时刻提醒自己不要重复是至关重要的。在软件开发里，有一个重要的原则叫做 <strong>Don’t Repeat Yourself</strong>(不要重复自己，简称DRY)，更经典的叙述在&lt;&lt;程序员修炼之道&gt;&gt;中：<strong>在一个系统中，每一处知识都必须有单一、明确、权威地表述</strong>。</p>
+<p>所以本小节来看看常见的重复代码有哪些。</p>
+<h4 id="重复的结构"><a href="#重复的结构" class="headerlink" title="重复的结构"></a>重复的结构</h4><p>话不多说，还是来看几段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Task</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendBook</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.service.sendBook();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="built_in">this</span>.notification.send(<span class="keyword">new</span> <span class="title class_">SendFailure</span>(t)));</span><br><span class="line">    <span class="keyword">throw</span> t;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Task</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendChapter</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.service.sendChapter();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="built_in">this</span>.notification.send(<span class="keyword">new</span> <span class="title class_">SendFailure</span>(t)));</span><br><span class="line">    <span class="keyword">throw</span> t;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Task</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">startTranslation</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.service.startTranslation();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="built_in">this</span>.notification.send(<span class="keyword">new</span> <span class="title class_">SendFailure</span>(t)));</span><br><span class="line">    <span class="keyword">throw</span> t;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是3个业务函数，就是发送作品、发送章节和开始翻译，看起来这3个函数已经写的非常简洁了，但是这3段代码在结构上却有重复的，就是其中的<strong>catch语句</strong>。</p>
+<p>先理解一下业务，这里进行catch的目的就是为了防止系统出了问题无人发掘，所以这里<strong>通过notification给飞书发送一个通知</strong>；</p>
+<p>相比于原来的逻辑，<strong>这个逻辑是后来加上的，所以代码作者不厌其烦的在每一处都添加了这行代码</strong>。</p>
+<p>虽然这3个函数调用的业务代码不同，但是结构是一致的，有重复的结构，我们可以把其中<strong>重复的结构即捕获异常部分给提取出来</strong>：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">executeTask</span><span class="params">(<span class="keyword">final</span> Runnable runnable)</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    runnable.run();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="built_in">this</span>.notification.send(<span class="keyword">new</span> <span class="title class_">SendFailure</span>(t)));</span><br><span class="line">    <span class="keyword">throw</span> t;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有了这个结构，前面几个函数就可以用来改写了，对于支持函数式编程的程序语言来说，可以用语言提供的便利写法来简化代码，如下:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Task</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendBook</span><span class="params">()</span> &#123;</span><br><span class="line">  executeTask(<span class="built_in">this</span>.service::sendBook);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Task</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendChapter</span><span class="params">()</span> &#123;</span><br><span class="line">  executeTask(<span class="built_in">this</span>.service::sendChapter);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Task</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">startTranslation</span><span class="params">()</span> &#123;</span><br><span class="line">  executeTask(<span class="built_in">this</span>.service::startTranslation);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>经过这个例子的改写，如果再有一些通用结构的调整，比如出错了需要加一些日志，就更好处理了。</p>
+<p>这个例子非常简单，</p>
+<p>但是有2点需要注意：<strong>发现结构重复和思维转变</strong>。</p>
+<p>1.对于结构重复，一般是因为业务变更，或者程序员为了方便直接复制粘贴现有的方法代码，没有做过多考虑而导致的。</p>
+<p>对于思维转变，我为什么要这么说呢？在面我们说命名时，类一般是名称，而函数是动词或者动宾结构，而对于参数一般是名词，这对于Java 8之前是完全没有问题的。</p>
+<p>但是<strong>随着函数式编程的兴起，比如Kotlin和Java 8支持lambda，都是以函数为主角，即高阶函数可以作为参数</strong>。而函数是啥，函数是动作，这里的参数就不仅仅是名词，也可以是动词了。</p>
+<p>比如上面的例子中，修改后的代码，就是传递动作这一典范，所以随着编程语言的进步，我们的编程思维也需要改变和提高。</p>
+<h3 id="做真正的选择"><a href="#做真正的选择" class="headerlink" title="做真正的选择"></a>做真正的选择</h3><p>还是先来看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (user.isEditor()) &#123;</span><br><span class="line">  service.editChapter(chapterId, title, content, <span class="literal">true</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  service.editChapter(chapterId, title, content, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的逻辑是这样的：editChapter是用来编辑章节的，最后一个参数表示是否审核通过，而user可能是作者也可能是编辑，当是编辑时，自动审核通过，当是作者时则默认是审核不通过(因为无权审核)。</p>
+<p>初看这段代码，感觉没啥毛病，这里也就是使用if来分开了2个不同的业务处理流程，但是仔细观察后，我们发现2个分支调用的函数仅仅是最后一个参数不一样。</p>
+<p>这也是一种重复代码，造成这个原因的是作者在写这段代码时，<strong>脑子只想到if语句判断之后要做什么，而没有想到这个if语句判断的到底是什么。</strong></p>
+<p><strong>写代码要有表达性，要能准确地把意图表达出来</strong>，是写代码过程中非常重要的一环。显然，这里的if判断是为了区分参数，而不是动作，所以我们可以稍微调整一下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="variable">approved</span> <span class="operator">=</span> user.isEditor();</span><br><span class="line">service.editChapter(chapterId, title, content, approved);</span><br></pre></td></tr></table></figure>
+
+<p>注意这里的关注点，并没有直接把user.isEditor()当成参数传递给editChapter函数，原因是对于editChapter函数来说，最后一个Boolean类型的参数表示的是：是否审核通过，而不是这个用户是不是编辑。</p>
+<p>这里单独用一个approved变量，就更容易读懂代码。</p>
+<h3 id="长函数"><a href="#长函数" class="headerlink" title="长函数"></a>长函数</h3><p>说起长函数，这对于程序员来说就再也熟悉不过了，不论是复杂的业务代码，还是一些源代码，总有一些几百甚至上千行的长函数。</p>
+<p>每当在长长的函数体中找到问题所在，再小心翼翼的改动代码，都是一些不愉悦的回忆。</p>
+<p>这个点的问题，大家都知道，但是在说长函数之前，我们需要知道一个点：就是多长的函数才算长？</p>
+<h4 id="多长的函数才算长"><a href="#多长的函数才算长" class="headerlink" title="多长的函数才算长"></a>多长的函数才算长</h4><p>为什么要讨论这个呢？不同的开发团队和不同的开发语言对于长函数的容忍度是不一样的，比如团队认为100行才算长函数，低于100行的不算，那绝大多数的函数都没有必要进行优化。</p>
+<p><strong>对于函数长度容忍度高，这是导致长函数产生的关键点</strong>。</p>
+<p><strong>一个好的程序员面对代码库时要有不同尺度的观察能力，看设计时，要能够高屋建瓴，看代码时，要能细致入微</strong>。</p>
+<p>而对于长函数的长定义也是一样的，回到工作中，”越小越好”是一个追求的目标，只有有一个严格的标准，对代码长度容忍度降低，才会提供对细节的感知力，从而发现原本所谓细枝末节的地方隐藏的问题。</p>
+<p>所以对于Java语言，这里建议长函数的定义是20行，当然不是一个强制标准，当然是越短越好，当一些业务无法拆分时，偶尔超过20行也是可以的。</p>
+<h4 id="长函数的产生"><a href="#长函数的产生" class="headerlink" title="长函数的产生"></a>长函数的产生</h4><p>这里我们要知道长函数产生的一些原因，如果不理解长函数产生的原因，就很难在我们自己写代码时时刻提醒自己，下面列举几个长函数产生的原因。</p>
+<h4 id="以性能为由"><a href="#以性能为由" class="headerlink" title="以性能为由"></a>以性能为由</h4><p>我们都知道，函数调用的过程其实是一个入栈出栈的过程，当函数越多时，入栈出栈的次数就越多，这样会导致性能下降。</p>
+<p>但是随着硬件的发展，和编译器、语言本身的优化，<strong>性能优化不应该是写代码的第一考量</strong>，更不应该拿这一点来写出长函数。</p>
+<h4 id="平铺直叙"><a href="#平铺直叙" class="headerlink" title="平铺直叙"></a>平铺直叙</h4><p>在文章前面我们也说过，定义函数就是为了把一类动作封装，让人可以一眼看出函数意图，但是很多函数实现采用平铺直叙的方式，洋洋洒洒写了几百行，尤其对于复杂的流程，这样就容易产生长函数。</p>
+<p>对于平铺直叙的代码风格，会有2个典型问题：</p>
+<ol>
+<li>把多个业务处理流程放在一个函数里实现；</li>
+<li>把不同层次的细节放到一个函数里实现。</li>
+</ol>
+<p>这2个问题就会导致代码逻辑分层混乱，不符合单一职责原则。</p>
+<p>而解决长函数的方法就是<strong>提取函数</strong>，把一个大函数拆分为若干个小函数。在拆分过程中，<strong>时刻铭记”分离关注点”这个原则</strong>，把不同的流程、不同的层次的代码给分离开来。</p>
+<p>对于提取后的函数，还有一个特点，就是函数名更容易取名和理解。比如很多长函数，逻辑非常多，只能用handleXXX来表示，或者用一个非常长的函数名来表明其意图，这在上一节中我们说过，这是一种坏味道。当长函数不存在时，我们也更容易起名，更容易理解函数。</p>
+<h4 id="一次加一点"><a href="#一次加一点" class="headerlink" title="一次加一点"></a>一次加一点</h4><p>这个场景就更常见了，我们难免会维护一些旧代码，在旧代码上新增功能，为了最小改动，我们经常只在需要的地方加一点点代码，比如最开始的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (code == <span class="number">400</span> || code == <span class="number">401</span>) &#123;</span><br><span class="line">  <span class="comment">// 做一些错误处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>随着后面需求越来越多，日积月累，每一次就改一点，可能会变成：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (code == <span class="number">400</span> || code == <span class="number">401</span> || code == <span class="number">402</span> || ...</span><br><span class="line">  || code == <span class="number">500</span> || ...</span><br><span class="line">  || ...</span><br><span class="line">  || code == <span class="number">10000</span> || ...) &#123;</span><br><span class="line">  <span class="comment">// 做一些错误处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时再去阅读，就发现很难理解了。</p>
+<p><strong>任何代码都经不起这种无意识的积累，每个人都没有错，但是结果很糟糕</strong>。</p>
+<p>对于这种问题该如何做呢？总不能不增加需求吧，这里有一个”童子军军规”：<strong>让营地比你来时更干净</strong>。</p>
+<p>在编程领域也是这样，<strong>如果我们自己对代码的改动让原有代码变得更糟糕，就需要去改进它</strong>。而这一切的前提是，自己要能发现是否会变得糟糕，所以识别代码坏味道非常必要。</p>
+<h3 id="大类"><a href="#大类" class="headerlink" title="大类"></a>大类</h3><p>说起大类，人们就会和想到长函数一样，满满屏幕的代码，这滋味可不好受。类之所以称为了大类，<strong>一种表现形式就是前面文章所说的长函数</strong>，一个类只要有几个长函数，那么它肯定是一眼望不到边了。</p>
+<p>大类还有一种表现形式，<strong>类里面有特别多的字段和函数</strong>，也许每个函数都不大，但是架不住数量多啊，这也是成为大类的一个主要原因。本节主要说第二种形式的大类，长函数导致的原因我们前面文章已经分析过了。</p>
+<h4 id="分模块"><a href="#分模块" class="headerlink" title="分模块"></a>分模块</h4><p>假如有人问：为什么不把所有代码都写到一个文件里？</p>
+<p>你心里肯定觉得这个问题很傻，正经人谁会把项目代码都写在一个文件里。确实没人会这么做，把文件都写到一个文件里问题是什么呢？</p>
+<p>一方面，相同的功能模块没法复用；另一方面，也是最关键的，把代码写在一个文件里，其复杂度会超出一个人能够掌握的认知范围。也就是说，<strong>一个人理解的东西是有限的，没有人能同时面对所有细节</strong>。</p>
+<p><strong>人类面对复杂事物给出的解决方案是分而治之</strong>，所以我们看到几乎各种程序设计语言都有自己的模块划分方案，从最初的按照文件划分，到后来，使用面向对象方案按照类进行划分，本质上都是一种模块划分的方式。</p>
+<p>当模块划分得足够细，人们面对的就不是细节，而是模块，理解成本就降低了。所以这样我们再来看本节所说的坏味道，<strong>如果一个类里面的内容太多，它就会超过一个人的理解范畴，顾此失彼就在所难免了</strong>。</p>
+<h4 id="大类的产生"><a href="#大类的产生" class="headerlink" title="大类的产生"></a>大类的产生</h4><p>要想理解如何拆分一个大类，我们需要知道，这些大类是如何变大的。</p>
+<h5 id="职责不单一"><a href="#职责不单一" class="headerlink" title="职责不单一"></a>职责不单一</h5><p>最容易产生大类的原因就是<strong>职责的不单一</strong>，我来看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">long</span> userId;</span><br><span class="line">  <span class="keyword">private</span> String name;</span><br><span class="line">  <span class="keyword">private</span> String nickname;</span><br><span class="line">  <span class="keyword">private</span> String email;</span><br><span class="line">  <span class="keyword">private</span> String phoneNumber;</span><br><span class="line">  <span class="keyword">private</span> AuthorType authorType;</span><br><span class="line">  <span class="keyword">private</span> ReviewStatus authorReviewStatus;</span><br><span class="line">  <span class="keyword">private</span> EditorType editorType;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个User类拥有一个大类的典型特性，其中包含了一大堆字段；面对这样一个类时，我们要问的第一个问题就是，<strong>这个类的字段都是必需的吗？</strong></p>
+<p>我们仔细分析一下该类，首先是用户ID(userId)、姓名(name)、昵称(nickname)之类应该是一个用户的基本信息，后面的邮箱(email)和电话(phoneNumber)用作登录方式也和用户关联，这里放入User类也好理解。</p>
+<p>再往后看，作者类型(authorType)，这里表示作者是签约作者还是普通作者，签约作者可以设置作品的付费信息，而普通作者不能；后面的字段是作者审核状态(authorReviewStatus)，也就是说，作者成为签约作者，需要一个审核过程，用该字段表示。</p>
+<p>再往后，又有一个编辑类型(editorType)字段，这是因为编辑可以是主编，也可以是小编，他们权限是不一样的。</p>
+<p>这还没有过完所有字段，不过相信你已经发现问题了。首先普通用户既不是作者，也不是编辑，作者和编辑这些相关的字段对于普通用户来说，都是没有意义的；其次对于成为作者的用户，编辑的意义也不大，因为不会成为编辑。</p>
+<p>在这个类的设计里面，其实有普通用户、作者、编辑这3个不同的角色，<strong>都有不同的述求方向和关心的内容</strong>，为什么放在一块，仅仅因为他们都是这个系统的用户，所以放在一个类中。这种做法，严重违反了<strong>单一职责原则</strong>。</p>
+<p>单一职责原则非常重要，它可以让我们<strong>把模块的变化纳入考量</strong>，单一职责原则是衡量软件好坏的一把简单而有效的尺子。所以，破解大类的方法，<strong>关键就是能够把不同的职责拆分开来</strong>。</p>
+<p>回到上面的类中，在业务上有普通用户、作者和编辑3个身份，所以我们需要把系统中默认的User类给拆分开：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">long</span> userId;</span><br><span class="line">  <span class="keyword">private</span> String name;</span><br><span class="line">  <span class="keyword">private</span> String nickname;</span><br><span class="line">  <span class="keyword">private</span> String email;</span><br><span class="line">  <span class="keyword">private</span> String phoneNumber;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Author</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">long</span> userId;</span><br><span class="line">  <span class="keyword">private</span> AuthorType authorType;</span><br><span class="line">  <span class="keyword">private</span> ReviewStatus authorReviewStatus;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Editor</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">long</span> userId;</span><br><span class="line">  <span class="keyword">private</span> EditorType editorType;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里根据业务需求拆分出了Author和Editor这俩个类，把作者和编辑相关的字段分别移除，而和User类的关系通过userId字段来关联，这样每个类的职责就单一了。</p>
+<h5 id="字段未分组"><a href="#字段未分组" class="headerlink" title="字段未分组"></a>字段未分组</h5><p>大类的产生往往还有一个常见的原因，就是<strong>字段未分组</strong>。有时候，我们会觉得一些字段确实属于某个类，结果是该类还是很大，比如上面拆分后的User类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">long</span> userId;</span><br><span class="line">  <span class="keyword">private</span> String name;</span><br><span class="line">  <span class="keyword">private</span> String nickname;</span><br><span class="line">  <span class="keyword">private</span> String email;</span><br><span class="line">  <span class="keyword">private</span> String phoneNumber;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面我们分析这些字段都是必需的，但是再仔细分析，我们可以发现userId、name和nickname字段信息基本是不怎么会改变，而email和phoneNumber则都属于联系方式字段，根据绑定各种媒体账号可能会变化较多，所以根据这个理解，我们可以把User类的字段分组，把不同的信息放到不同的类里面：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">long</span> userId;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">String</span> name;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">String</span> nickname;</span><br><span class="line">  <span class="keyword">private</span> Contact contact;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Contact</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">String</span> email;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">String</span> phoneNumber;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们引入了Contact类(联系方式)，把邮箱和电话号码放入了进去，之后任何联系方式相关的调整都可以放入到这个类里面。</p>
+<p>通过调整，我们会发现类变小了，这2种拆分方式总结就是：<strong>前面是根据职责，拆分出了不同的实体；后面将字段做了分组，用类把不同的信息分别做了封装。</strong></p>
+<h3 id="长参数列表"><a href="#长参数列表" class="headerlink" title="长参数列表"></a>长参数列表</h3><p>前面我们说了大类和长函数这俩种非常容易发现的坏味道，还有一种非常容易发现的坏味道，就是长参数列表。</p>
+<p>当一个函数参数有十几个甚至几十个时，不仅会让函数变得非常长，而且在调用函数时传递参数也是一件非常痛苦的事。</p>
+<p>首先，我们思考一下为什么要有参数呢？我们知道，<strong>参数用于函数之间共享信息</strong>。但是函数间共享信息的方式不止一种，除了参数，最常见的就是全局变量。</p>
+<p>在我们初学编程时，老师就说过不要使用全局变量，全局变量有非常多的不确定性，可修改地方太多，所以在日常编程中，尽量少使用全局变量。</p>
+<p>长参数列表的问题和我们之前所说长函数和大类一样，人们能够掌握的东西有限，一旦参数过长，就很难对内容进行把控。</p>
+<p>所以一贯思路，就是减少参数的数量，有如下方法。</p>
+<p>参数封装成类</p>
+<p>我们先来看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">createBook</span><span class="params">(<span class="keyword">final</span> String title, </span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> String introduction,</span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> URL coverUrl,</span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> BookType type,</span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> BookChannel channel,</span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> String protagonists,</span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> String tags,</span></span><br><span class="line"><span class="params">                       <span class="keyword">final</span> <span class="type">boolean</span> completed)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="type">Book</span> <span class="variable">book</span> <span class="operator">=</span> Book.builder</span><br><span class="line">    .title(title) </span><br><span class="line">    .introduction(introduction)</span><br><span class="line">    .coverUrl(coverUrl)</span><br><span class="line">    .type(type)</span><br><span class="line">    .channel(channel)</span><br><span class="line">    .protagonists(protagonists)</span><br><span class="line">    .tags(tags)</span><br><span class="line">    .completed(completed)</span><br><span class="line">    .build();</span><br><span class="line">    </span><br><span class="line">  <span class="built_in">this</span>.repository.save(book);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个创建作品的函数，参数包括了创建一个作品需要的所有信息，包括标题、简介、封面URL、类型、归属频道等等。这里看起来没啥问题，只是参数较多而已，但是假如后续需求变化了，创建一个作品又要多2个参数，是不是很自然的就会再加2个参数，时间久了之后，就会更长了。</p>
+<p>和大类”每次只加一点点”类似，我们知道了长函数坏味道形成的原因，那如何解决呢？</p>
+<p>这里所有参数都是和创建作品相关，也是创造作品所必须的，所以我们<strong>可以把参数封装成一个类</strong>：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NewBookParamters</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> String title;</span><br><span class="line">  <span class="keyword">private</span> String introduction;</span><br><span class="line">  <span class="keyword">private</span> URL coverUrl;</span><br><span class="line">  <span class="keyword">private</span> BookType type;</span><br><span class="line">  <span class="keyword">private</span> BookChannel channel;</span><br><span class="line">  <span class="keyword">private</span> String protagonists;</span><br><span class="line">  <span class="keyword">private</span> String tags;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">boolean</span> completed;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样一来，我们上面函数就变成了下面这样：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">createBook</span><span class="params">(<span class="keyword">final</span> NewBookParamters parameters)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="type">Book</span> <span class="variable">book</span> <span class="operator">=</span> Book.builder</span><br><span class="line">    .title(parameters.getTitle()) </span><br><span class="line">    .introduction(parameters.getIntroduction())</span><br><span class="line">    .coverUrl(parameters.getCoverUrl())</span><br><span class="line">    .type(parameters.getType())</span><br><span class="line">    .channel(parameters.getChannel())</span><br><span class="line">    .protagonists(parameters.getProtagonists())</span><br><span class="line">    .tags(parameters.getTags())</span><br><span class="line">    .completed(parameters.isCompleted())</span><br><span class="line">    .build();</span><br><span class="line">    </span><br><span class="line">  <span class="built_in">this</span>.repository.save(book);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看着参数列表由多个变成了一个，但是在函数内使用还是一个一个地取出来，这不是多此一举吗？</p>
+<p>这就涉及到对软件设计的理解，我们<strong>并不是简单地把参数封装成类</strong>。站在软件设计的角度，我们<strong>引入了一个新的模型</strong>，而<strong>一个模型的封装应该是以行为为基础的</strong>。</p>
+<p>之前没有这个模型，我们想不到它应该有什么行为，现在模型产生了，它就应该有配套的行为。从代码我们不难看出，这个模型的行为应该就是创建一个作品对象出来，理解了这一点，代码调整如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NewBookParamters</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> String title;</span><br><span class="line">  <span class="keyword">private</span> String introduction;</span><br><span class="line">  <span class="keyword">private</span> URL coverUrl;</span><br><span class="line">  <span class="keyword">private</span> BookType type;</span><br><span class="line">  <span class="keyword">private</span> BookChannel channel;</span><br><span class="line">  <span class="keyword">private</span> String protagonists;</span><br><span class="line">  <span class="keyword">private</span> String tags;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">boolean</span> completed;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> Book <span class="title function_">newBook</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Book.builder</span><br><span class="line">      .title(title) </span><br><span class="line">      .introduction(introduction)</span><br><span class="line">      .coverUrl(coverUrl)</span><br><span class="line">      .type(type)</span><br><span class="line">      .channel(channel)</span><br><span class="line">      .protagonists(protagonists)</span><br><span class="line">      .tags(tags)</span><br><span class="line">      .completed(completed)</span><br><span class="line">      .build();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建作品的函数简化为：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">createBook</span><span class="params">(<span class="keyword">final</span> NewBookParamters parameters)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="type">Book</span> <span class="variable">book</span> <span class="operator">=</span> parameters.newBook();</span><br><span class="line">    </span><br><span class="line">  <span class="built_in">this</span>.repository.save(book);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的关键不仅是把参数封装为类多了一个模型，更重要的是理解模型的行为，即任何模型的封装都是以行为为基础。</p>
+<h4 id="动静分离"><a href="#动静分离" class="headerlink" title="动静分离"></a>动静分离</h4><p>接下来我们来看一段参数列表不是那么长的代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getChapters</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> bookId, </span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> HttpClient httpClient,</span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> ChapterProcessor processor)</span> &#123;</span><br><span class="line">  <span class="type">HttpUriRequest</span> <span class="variable">request</span> <span class="operator">=</span> createChapterRequest(bookId);</span><br><span class="line">  <span class="type">HttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> httpClient.execute(request);</span><br><span class="line">  List&lt;Chapter&gt; chapters = toChapters(response);</span><br><span class="line">  processor.process(chapters);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数的作用是根据作品ID获取其对应章节的信息，单纯看参数个数，这个函数的参数个数不算多，但是这里的参数列表依旧有问题。</p>
+<p>在这几个参数里面，每次传递进来的</p>
+<p>bookId都是不一样的，是随着请求的不同而改变。</p>
+<p>但是httpClient和processor这2个参数是一样的，因为他们都有相同的逻辑。</p>
+<p>换言之，就是bookId的变化频率和httpClient和processor变化频率不一样。这种变化频率不一样的情况，是<strong>分离关注点的典型情况</strong>，<strong>即动数据(bookId)和静数据(httpClient、processor)应该分离开来</strong>。</p>
+<p>具体到场景中，静态不变的数据完全可以成为函数所在类的一个字段，所以代码可以改写如下：</p>
+<p>this.httpClient</p>
+<p>this.processor</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getChapters</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> bookId)</span> &#123;</span><br><span class="line">  <span class="type">HttpUriRequest</span> <span class="variable">request</span> <span class="operator">=</span> createChapterRequest(bookId);</span><br><span class="line">  <span class="type">HttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> <span class="built_in">this</span>.httpClient.execute(request);</span><br><span class="line">  List&lt;Chapter&gt; chapters = toChapters(response);</span><br><span class="line">  <span class="built_in">this</span>.processor.process(chapters);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个坏味道其实是软件设计问题，代码缺乏应有的结构，将本来属于静态的数据却以动态参数的方式传来传去。</p>
+<p>这里<strong>静态分离</strong>，也说明了前面说的可以把长参数列表用一个类进行封装的前提是：<strong>这些参数属于一个类，拥有相同的变化频率</strong>。</p>
+<h4 id="告别标记"><a href="#告别标记" class="headerlink" title="告别标记"></a>告别标记</h4><p>什么是标记，即我们代码中常见的flag，来看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">editChapter</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> chapterId, </span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> String title, </span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> String content, </span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> <span class="type">boolean</span> apporved)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数的作用是编辑章节，前3个参数是待编辑章节的信息，后面表示是否审核通过，这是因为假如是作者角色调用该函数，是不能审核通过的(没有权限)，如果是编辑角色调用该函数，是直接审核通过的。</p>
+<p>这里逻辑看起来没啥问题，<strong>使用flag也是程序员常用的一个手段</strong>，但是也正是假如代码标记过多，就会造成逻辑混乱。</p>
+<p>最简单的解决方式，就是<strong>将标记参数代表的不同路径拆分出来</strong>。比如上面的函数就可以拆分为2个函数，一个函数负责普通的编辑，另一个负责可直接审核通过的编辑：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 普通的编辑，需要审核</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">editChapter</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> chapterId, </span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> String title, </span></span><br><span class="line"><span class="params">                        <span class="keyword">final</span> String content)</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接审核通过的编辑</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">editChapterWithApproval</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> chapterId,</span></span><br><span class="line"><span class="params">                                    <span class="keyword">final</span> String title,</span></span><br><span class="line"><span class="params">                                    <span class="keyword">final</span> String content)</span> &#123;</span><br><span class="line"> ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>标记参数在代码中的<strong>表现形式不仅仅是布尔值类型，有的是以枚举形式，还有的直接是以字符串或者整数形式</strong>。不论哪种形式，我们都可以通过拆分函数的方式将他们拆开，这种手法叫做<strong>移除标记参数</strong>。</p>
+<h3 id="滥用控制语句"><a href="#滥用控制语句" class="headerlink" title="滥用控制语句"></a>滥用控制语句</h3><p>本小节开始说一些代码中的坏味道，包括我们常见的嵌套代码和if、else语句等，可能会刷新我们之前的编程习惯认知。</p>
+<h4 id="嵌套的代码"><a href="#嵌套的代码" class="headerlink" title="嵌套的代码"></a>嵌套的代码</h4><p>嵌套的代码大家肯定都写过，效果就是函数结尾会有一大堆括号，给我们阅读代码带来了极度不方便，下面给出一个简单的代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">distributeEpubs</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> bookId)</span> &#123;</span><br><span class="line">  List&lt;Epub&gt; epubs = <span class="built_in">this</span>.getEpubsByBookId(bookId);</span><br><span class="line">  <span class="keyword">for</span> (Epub epub : epubs) &#123;</span><br><span class="line">    <span class="keyword">if</span> (epub.isValid()) &#123;</span><br><span class="line">      <span class="type">boolean</span> <span class="variable">registered</span> <span class="operator">=</span> <span class="built_in">this</span>.registerIsbn(epub);</span><br><span class="line">      <span class="keyword">if</span> (registered) &#123;</span><br><span class="line">        <span class="built_in">this</span>.sendEpub(epub);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;                                            </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码逻辑用来分发EPUB电子书，首先根据bookId查询到EPUB电子书集和，对于每一本电子书如果有效则进行注册，注册成功后，进行分发。</p>
+<p>这个逻辑不复杂，但是函数后面我们发现已经有4个右括号了，代码再稍微复杂一点，嵌套层次就更多了。</p>
+<p>这里出现的问题非常简单，在长函数那节我们说过，就是使用”<strong>平铺直叙”的方式写代码</strong>。这段代码，就是按照需求一步一步实现的，但是问题在于最后没有把代码整理一下。</p>
+<p>消除缩进的第一个着手点就是<strong>for循环里面的逻辑</strong>，我们可以单独拎出来：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">distributeEpubs</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> bookId)</span> &#123;</span><br><span class="line">  List&lt;Epub&gt; epubs = <span class="built_in">this</span>.getEpubsByBookId(bookId);</span><br><span class="line">  <span class="keyword">for</span> (Epub epub : epubs) &#123;</span><br><span class="line">    <span class="built_in">this</span>.distributeEpub(epub)；</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">distributeEpub</span><span class="params">(<span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (epub.isValid()) &#123;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">registered</span> <span class="operator">=</span> <span class="built_in">this</span>.registerIsbn(epub);</span><br><span class="line">    <span class="keyword">if</span> (registered) &#123;</span><br><span class="line">      <span class="built_in">this</span>.sendEpub(epub);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们对每一本电子书的判断逻辑是一样的，所以可以把这部分逻辑抽离为函数给单独出来，这样原来的函数就少了一层缩进了。</p>
+<h4 id="if和else"><a href="#if和else" class="headerlink" title="if和else"></a>if和else</h4><p>在上面拆分后的distributeEpub方法中，还是有很长的缩进，这里的缩进是由if语句造成的。</p>
+<p>通常来说，if语句造成的缩进，很多时候都是在检查某个先决条件，只有条件通过，才继续执行后面的代码。这样的代码，<strong>可以使用卫语句来解决</strong>，即设置单独的检查条件，不满足条件直接返回。</p>
+<p>这是一种典型的重构：<strong>以卫语句取代嵌套的条件表达式</strong>。修改后代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">distributeEpub</span><span class="params">(<span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (!epub.isValid()) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="type">boolean</span> <span class="variable">registered</span> <span class="operator">=</span> <span class="built_in">this</span>.registerIsbn(epub);</span><br><span class="line">  <span class="keyword">if</span> (!registered) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">this</span>.sendEpub(epub);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改后的代码嵌套就少了很多，也更利于阅读。</p>
+<p>这里说了if关键字，与之对应的是else关键字，<strong>对于else关键字也是一种坏味道，这挑战了很多程序员的认知</strong>。</p>
+<p>我们同样可以使用卫语句来消除else关键字，比如下面代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> <span class="type">boolean</span> highQuality, <span class="keyword">final</span> <span class="type">int</span> chapterSequence)</span> &#123;</span><br><span class="line">  <span class="type">double</span> <span class="variable">price</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (highQuality &amp;&amp; chapterSequence &gt; START_CHARGING_SEQUENCE) &#123;</span><br><span class="line">    price = <span class="number">4.99</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sequenceNumber &gt; START_CHARGING_SEQUENCE</span><br><span class="line">        &amp;&amp; sequenceNumber &lt;= FURTHER_CHARGING_SEQUENCE) &#123;</span><br><span class="line">    price = <span class="number">1.99</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sequenceNumber &gt; FURTHER_CHARGING_SEQUENCE) &#123;</span><br><span class="line">    price = <span class="number">2.99</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    price = <span class="number">0.99</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> price;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个给电子书定价的函数，逻辑如下：当是高品质电子书，且页数大于起始收费页数则定价4.99，对于非高品质书来说，页数大于起始收费页小于进一步收费页数定价1.99，大于进一步收费页数定价2.99，其他默认定价为0.99。</p>
+<p>这一段代码在日常生活中经常写，因为我们一直以为if&#x2F;else就是天生一对，这里同样可以使用卫语句进行优化：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> <span class="type">boolean</span> highQuality, <span class="keyword">final</span> <span class="type">int</span> chapterSequence)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (highQuality &amp;&amp; chapterSequence &gt; START_CHARGING_SEQUENCE) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">4.99</span>;</span><br><span class="line">  &#125; </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (sequenceNumber &gt; START_CHARGING_SEQUENCE</span><br><span class="line">        &amp;&amp; sequenceNumber &lt;= FURTHER_CHARGING_SEQUENCE) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1.99</span>;</span><br><span class="line">  &#125; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (sequenceNumber &gt; FURTHER_CHARGING_SEQUENCE) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2.99</span>;</span><br><span class="line">  &#125; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0.99</span>;</span><br></pre></td></tr></table></figure>
+
+<p>优化后的代码，多使用return来提前结束，也更加方便阅读。</p>
+<p>不论是嵌套的代码，还是else语句，我们之所以视为坏味道并且改进，<strong>本质上都是在追求简单</strong>。<strong>因为一段代码的分支过多，复杂度就会大大提高</strong>。也是我们一直所说的，人脑能够理解的复杂度是有限的，分支过多的代码会超过理解范围。</p>
+<h4 id="重复的Switch"><a href="#重复的Switch" class="headerlink" title="重复的Switch"></a>重复的Switch</h4><p>前面所说的if else都是坏味道，那我们熟悉的switch语句也可能是坏味道，我们来看段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(<span class="keyword">final</span> User user, <span class="keyword">final</span> Book book)</span> &#123;</span><br><span class="line">  <span class="type">double</span> <span class="variable">price</span> <span class="operator">=</span> book.getPrice();</span><br><span class="line">  <span class="keyword">switch</span> (user.getLevel()) &#123;</span><br><span class="line">    <span class="keyword">case</span> UserLevel.SILVER:</span><br><span class="line">      <span class="keyword">return</span> price * <span class="number">0.9</span>;</span><br><span class="line">    <span class="keyword">case</span> UserLevel.GOLD: </span><br><span class="line">      <span class="keyword">return</span> price * <span class="number">0.8</span>;</span><br><span class="line">    <span class="keyword">case</span> UserLevel.PLATINUM:</span><br><span class="line">      <span class="keyword">return</span> price * <span class="number">0.75</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">return</span> price;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> User user, <span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">  <span class="type">double</span> <span class="variable">price</span> <span class="operator">=</span> epub.getPrice();</span><br><span class="line">  <span class="keyword">switch</span> (user.getLevel()) &#123;</span><br><span class="line">    <span class="keyword">case</span> UserLevel.SILVER:</span><br><span class="line">      <span class="keyword">return</span> price * <span class="number">0.95</span>;</span><br><span class="line">    <span class="keyword">case</span> UserLevel.GOLD: </span><br><span class="line">      <span class="keyword">return</span> price * <span class="number">0.85</span>;</span><br><span class="line">    <span class="keyword">case</span> UserLevel.PLATINUM:</span><br><span class="line">      <span class="keyword">return</span> price * <span class="number">0.8</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">return</span> price;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的逻辑是根据用户的等级来制定书籍和电子书的价格，但是代码部分仔细查看发现会有很多类似的代码，这就是一种典型的坏味道：重复的switch。</p>
+<p>之所以会出现重复的switch，<strong>通常都是因为缺少一个模型</strong>，所以这种坏味道的重构手法是：<strong>以多态取代条件表达式</strong>。</p>
+<p>还记得前面我们说过引入模型的原则吗？要以行为为基础，这里的行为就是根据用户等级获取不同的书籍和电子书价格，所以引入UserLevel模型：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">UserLevel</span> &#123;</span><br><span class="line">  <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(Book book)</span>;</span><br><span class="line">  <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(Epub epub)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RegularUserLevel</span> <span class="keyword">implements</span> <span class="title class_">UserLevel</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(<span class="keyword">final</span> Book book)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> book.getPrice();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> epub.getPrice();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GoldUserLevel</span> <span class="keyword">implements</span> <span class="title class_">UserLevel</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(<span class="keyword">final</span> Book book)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> book.getPrice() * <span class="number">0.8</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> epub.getPrice() * <span class="number">0.85</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SilverUserLevel</span> <span class="keyword">implements</span> <span class="title class_">UserLevel</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(<span class="keyword">final</span> Book book)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> book.getPrice() * <span class="number">0.9</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> epub.getPrice() * <span class="number">0.85</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PlatinumUserLevel</span> <span class="keyword">implements</span> <span class="title class_">UserLevel</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(<span class="keyword">final</span> Book book)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> book.getPrice() * <span class="number">0.75</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> epub.getPrice() * <span class="number">0.8</span>; </span><br></pre></td></tr></table></figure>
+
+<p>上面代码针对不同的用户等级，在处理获取价格是不一样的，所以前面代码中的switch就可以去掉了：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getBookPrice</span><span class="params">(<span class="keyword">final</span> User user, <span class="keyword">final</span> Book book)</span> &#123;</span><br><span class="line">  <span class="type">UserLevel</span> <span class="variable">level</span> <span class="operator">=</span> user.getUserLevel()</span><br><span class="line">  <span class="keyword">return</span> level.getBookPrice(book);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">double</span> <span class="title function_">getEpubPrice</span><span class="params">(<span class="keyword">final</span> User user, <span class="keyword">final</span> Epub epub)</span> &#123;</span><br><span class="line">  <span class="type">UserLevel</span> <span class="variable">level</span> <span class="operator">=</span> user.getUserLevel()</span><br><span class="line">  <span class="keyword">return</span> level.getEpubPrice(epub);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-工具"><a href="#3-工具" class="headerlink" title="3.工具"></a>3.工具</h2><p>1.<a href="https://blog.csdn.net/u012351051/article/details/122515205">Visual Paradigm绘制流程图、序列图</a></p>
+<p>2.IDEA插件</p>
+<p>   Alibaba Java Coding Guidelines</p>
+<p>  GenerateAllSetter（快速生成get set）</p>
+<p>​    JRebel 热加载插件</p>
+<p>3.浏览器扩展</p>
+<p><img src="/OPPO%5C1713967959900.png" alt="1713967959900"></p>
+]]></content>
+      <categories>
+        <category>周会分享</category>
+      </categories>
+      <tags>
+        <tag>周会分享</tag>
       </tags>
   </entry>
 </search>
